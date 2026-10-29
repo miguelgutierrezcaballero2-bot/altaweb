@@ -1,5 +1,10 @@
+@import "tailwindcss";
+
 /* ══════════════════════════════════════════════
-   LUXE Store — Design System
+   LEGACY — LUXE Store Design System (dark tokens)
+   Kept ONLY so the current starter demo page keeps
+   rendering until Phase 2 removes it. Do not build
+   new UI against these variables.
    ══════════════════════════════════════════════ */
 
 /* --- Tokens --- */
