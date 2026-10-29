@@ -7,9 +7,10 @@ import { cartManager } from '@/lib/managers/cart-manager';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params: paramsPromise }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await paramsPromise;
     const cart = cartManager.findById(params.id);
     if (!cart) {
       return NextResponse.json({ error: 'Cart not found' }, { status: 404 });
@@ -25,9 +26,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params: paramsPromise }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await paramsPromise;
     const body = await request.json();
     const { action, ...actionData } = body;
 

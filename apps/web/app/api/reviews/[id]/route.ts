@@ -7,9 +7,10 @@ import { reviewManager } from '@/lib/managers/review-manager';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params: paramsPromise }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await paramsPromise;
     const review = reviewManager.findAll().find((r) => r.id === params.id);
     if (!review) {
       return NextResponse.json({ error: 'Review not found' }, { status: 404 });
@@ -25,9 +26,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params: paramsPromise }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await paramsPromise;
     const body = await request.json();
     const review = reviewManager.findAll().find((r) => r.id === params.id);
     if (!review) {

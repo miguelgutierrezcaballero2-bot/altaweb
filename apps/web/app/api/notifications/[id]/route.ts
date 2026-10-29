@@ -7,9 +7,10 @@ import { notificationManager } from '@/lib/managers/notification-manager';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params: paramsPromise }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await paramsPromise;
     const notification = notificationManager.findById(params.id);
     if (!notification) {
       return NextResponse.json({ error: 'Notification not found' }, { status: 404 });
@@ -25,9 +26,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params: paramsPromise }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await paramsPromise;
     const updated = notificationManager.markAsRead(params.id);
     if (!updated) {
       return NextResponse.json({ error: 'Notification not found' }, { status: 404 });
@@ -43,9 +45,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params: paramsPromise }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await paramsPromise;
     const deleted = notificationManager.delete(params.id);
     if (!deleted) {
       return NextResponse.json({ error: 'Notification not found' }, { status: 404 });

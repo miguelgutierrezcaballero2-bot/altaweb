@@ -1,5 +1,5 @@
 /**
- * Notifications [userId]/unread-count API route — Get unread count
+ * Notifications [id]/unread-count API route — Get unread count
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -7,10 +7,11 @@ import { notificationManager } from '@/lib/managers/notification-manager';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params: paramsPromise }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const count = notificationManager.getUnreadCount(params.userId);
+    const params = await paramsPromise;
+    const count = notificationManager.getUnreadCount(params.id);
     return NextResponse.json({ unreadCount: count });
   } catch (error) {
     return NextResponse.json(

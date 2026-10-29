@@ -7,9 +7,10 @@ import { promotionManager } from '@/lib/managers/promotion-manager';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { code: string } }
+  { params: paramsPromise }: { params: Promise<{ code: string }> }
 ) {
   try {
+    const params = await paramsPromise;
     const { searchParams } = new URL(request.url);
     const result = promotionManager.validateCode({
       code: params.code,
@@ -29,9 +30,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { code: string } }
+  { params: paramsPromise }: { params: Promise<{ code: string }> }
 ) {
   try {
+    const params = await paramsPromise;
     const promotion = promotionManager.applyDiscount(params.code);
     if (!promotion) {
       return NextResponse.json(

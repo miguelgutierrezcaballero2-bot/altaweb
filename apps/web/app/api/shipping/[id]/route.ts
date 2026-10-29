@@ -7,9 +7,10 @@ import { shippingManager } from '@/lib/managers/shipping-manager';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params: paramsPromise }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await paramsPromise;
     const shipping = shippingManager.findById(params.id);
     if (!shipping) {
       return NextResponse.json({ error: 'Shipping not found' }, { status: 404 });
@@ -25,9 +26,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params: paramsPromise }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await paramsPromise;
     const body = await request.json();
     const shipping = shippingManager.updateStatus(params.id, body);
     if (!shipping) {
@@ -44,9 +46,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params: paramsPromise }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await paramsPromise;
     const deleted = shippingManager.delete(params.id);
     if (!deleted) {
       return NextResponse.json({ error: 'Shipping not found' }, { status: 404 });

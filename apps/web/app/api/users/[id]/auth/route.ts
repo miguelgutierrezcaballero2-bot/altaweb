@@ -7,9 +7,10 @@ import { userManager } from '@/lib/managers/user-manager';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params: paramsPromise }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await paramsPromise;
     const body = await request.json();
     const result = userManager.authenticate(body);
     if (!result) {

@@ -7,9 +7,10 @@ import { shippingManager } from '@/lib/managers/shipping-manager';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params: paramsPromise }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await paramsPromise;
     const tracking = shippingManager.getTracking(params.id);
     if (!tracking) {
       return NextResponse.json({ error: 'Tracking not found' }, { status: 404 });

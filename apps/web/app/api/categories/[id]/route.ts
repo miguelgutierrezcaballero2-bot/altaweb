@@ -7,9 +7,10 @@ import { categoryManager } from '@/lib/managers/category-manager';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params: paramsPromise }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await paramsPromise;
     const category = categoryManager.findById(params.id);
     if (!category) {
       return NextResponse.json({ error: 'Category not found' }, { status: 404 });
@@ -25,9 +26,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params: paramsPromise }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await paramsPromise;
     const body = await request.json();
     const category = categoryManager.update(params.id, body);
     if (!category) {
@@ -44,9 +46,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params: paramsPromise }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await paramsPromise;
     const deleted = categoryManager.delete(params.id);
     if (!deleted) {
       return NextResponse.json({ error: 'Category not found' }, { status: 404 });

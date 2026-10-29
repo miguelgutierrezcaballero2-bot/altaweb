@@ -7,9 +7,10 @@ import { inventoryManager } from '@/lib/managers/inventory-manager';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params: paramsPromise }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await paramsPromise;
     const item = inventoryManager.findById(params.id);
     if (!item) {
       return NextResponse.json({ error: 'Inventory record not found' }, { status: 404 });
@@ -25,9 +26,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params: paramsPromise }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await paramsPromise;
     const body = await request.json();
     const item = inventoryManager.updateStock(params.id, body);
     if (!item) {
