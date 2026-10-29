@@ -7,11 +7,9 @@
  * 1. `GET /api/users?email=` resolves the account id (only email resolver),
  * 2. `POST /api/users/<id>/auth` verifies credentials (route is id-keyed,
  *    authenticate looks the email up and the id only records lastLogin),
- * 3. an inline server action sets the httpOnly `altec_session` cookie,
+ * 3. the `createSessionAction` server action sets the httpOnly
+ *    `altec_session` cookie,
  * 4. the client navigates to `next` (or /orders).
- *
- * The server action imports the session module dynamically so this client
- * file never pulls server-only code into the client bundle.
  */
 
 import { useRouter } from 'next/navigation';
@@ -20,6 +18,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Loader2Icon, LogInIcon } from 'lucide-react';
+import { createSessionAction } from '@/components/auth/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -33,13 +32,6 @@ const loginSchema = z.object({
 });
 
 type LoginValues = z.infer<typeof loginSchema>;
-
-/** Server action: persists the session cookie established by the contract. */
-async function createSessionAction(claims: SessionClaims) {
-  'use server';
-  const { setSessionCookie } = await import('@/lib/auth/session');
-  await setSessionCookie(claims);
-}
 
 interface LoginFormProps {
   /** Validated `?next=` target (internal paths only). */

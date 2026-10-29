@@ -103,12 +103,11 @@ export async function getOwnOriginUrl(): Promise<string> {
  * `GET /api/users/<userId>` must resolve for the session to count as valid.
  * Returns null on missing/undecodable cookie or an unresolvable userId.
  */
-export async function verifySession(
-  baseUrl: string = await getOwnOriginUrl(),
-): Promise<SessionClaims | null> {
+export async function verifySession(baseUrl?: string): Promise<SessionClaims | null> {
   const claims = await getSessionClaims();
   if (!claims) return null;
-  const res = await fetch(`${baseUrl}/api/users/${encodeURIComponent(claims.userId)}`, {
+  const origin = baseUrl ?? (await getOwnOriginUrl());
+  const res = await fetch(`${origin}/api/users/${encodeURIComponent(claims.userId)}`, {
     cache: 'no-store',
   });
   if (!res.ok) {

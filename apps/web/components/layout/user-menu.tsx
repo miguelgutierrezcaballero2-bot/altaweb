@@ -21,16 +21,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { signOutAction } from '@/components/auth/actions';
 import type { SessionRole } from '@/lib/auth/session';
-
-/** Server action: clears the session cookie and returns home. */
-async function signOutAction() {
-  'use server';
-  const { clearSessionCookie } = await import('@/lib/auth/session');
-  const { redirect: actionRedirect } = await import('next/navigation');
-  await clearSessionCookie();
-  actionRedirect('/');
-}
 
 interface UserMenuSession {
   fullName: string;
