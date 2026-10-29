@@ -279,20 +279,22 @@ export function ensureCatalogSeeded(): SeedResult {
  * Safe to call repeatedly (instrumentation register, hot reloads).
  */
 export function seedCatalog(): SeedResult {
-  const domains = [seedCatalogData(), seedDemoUser(), seedDemoPromotions()];
+  const catalog = seedCatalogData();
+  const user = seedDemoUser();
+  const promos = seedDemoPromotions();
 
   return {
-    seeded: domains.some((d) => d.seeded),
-    categories: domains[0].categories,
-    products: domains[0].products,
-    users: domains[1].users,
-    promotions: domains[2].promotions,
+    seeded: catalog.seeded || user.seeded || promos.seeded,
+    categories: catalog.categories,
+    products: catalog.products,
+    users: user.users,
+    promotions: promos.promotions,
   };
 }
 
-function seedCatalogData(): { seeded: boolean } {
+function seedCatalogData(): { seeded: boolean; categories: number; products: number } {
   if (categoryManager.findAll().length > 0 || productManager.findAll().length > 0) {
-    return { seeded: false };
+    return { seeded: false, categories: 0, products: 0 };
   }
 
   const categoryIdBySlug = new Map<string, string>();
@@ -322,7 +324,7 @@ function seedCatalogData(): { seeded: boolean } {
     });
   }
 
-  return { seeded: true };
+  return { seeded: true, categories: CATEGORY_SEEDS.length, products: PRODUCT_SEEDS.length };
 }
 
 /**
@@ -332,9 +334,9 @@ function seedCatalogData(): { seeded: boolean } {
  * required string; until Phase 5 wires real sessions, checkout submits
  * attach this demo account. Idempotent by email lookup.
  */
-function seedDemoUser(): { users: number } {
+function seedDemoUser(): { seeded: boolean; users: number } {
   if (userManager.findByEmail(DEMO_USER_EMAIL)) {
-    return { users: 0 };
+    return { seeded: false, users: 0 };
   }
   userManager.create({
     email: DEMO_USER_EMAIL,
@@ -353,7 +355,7 @@ function seedDemoUser(): { users: number } {
     ],
     role: 'admin',
   });
-  return { users: 1 };
+  return { seeded: true, users: 1 };
 }
 
 /**
@@ -386,14 +388,14 @@ export const DEMO_PROMOTION_INPUTS: CreatePromotionInput[] = [
   },
 ];
 
-function seedDemoPromotions(): { promotions: number } {
+function seedDemoPromotions(): { seeded: boolean; promotions: number } {
   let created = 0;
   for (const promo of DEMO_PROMOTION_INPUTS) {
     if (promotionManager.findByCode(promo.code)) continue;
     promotionManager.create(promo);
     created++;
   }
-  return { promotions: created };
+  return { seeded: created > 0, promotions: created };
 }
 
 /**
