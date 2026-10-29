@@ -63,7 +63,9 @@ test('vendor buys with promo BIENVENIDA10 and confirms the order', async ({
   await page.getByRole('button', { name: 'Confirmar pedido' }).click();
   await expect(page).toHaveURL(/\/orders\//);
   await expect(page.getByRole('heading', { name: 'Pedido confirmado' })).toBeVisible();
-  await expect(page.getByText(/Freidora/)).toBeVisible();
+  // Scoped to the confirmation's main content: the header mega-menu now
+  // renders category descriptions + product links that contain the word.
+  await expect(page.getByRole('main').getByText(/Freidora/)).toBeVisible();
 
   // 7. Logout through the header user menu.
   await userButton.click();
