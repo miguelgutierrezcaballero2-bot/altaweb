@@ -11,7 +11,10 @@
 
 import { categoryManager } from '@/lib/managers/category-manager';
 import { productManager } from '@/lib/managers/product-manager';
+import { promotionManager } from '@/lib/managers/promotion-manager';
+import { userManager } from '@/lib/managers/user-manager';
 import type { CreateProductInput } from '@/lib/types/product';
+import type { CreatePromotionInput } from '@/lib/types/promotion';
 
 // Demo placeholder images shipped with the starter (stand-ins; see header).
 const PLACEHOLDER_IMAGES = [
@@ -246,7 +249,15 @@ export interface SeedResult {
   seeded: boolean;
   categories: number;
   products: number;
+  users: number;
+  promotions: number;
 }
+
+/** Demo vendor user marker (Phase-5-auth scaffolding — see seedDemoUser). */
+export const DEMO_USER_EMAIL = 'compras@negocio.demo';
+
+/** Demo promo codes displayed as a hint in the checkout form. */
+export const DEMO_PROMO_CODES = ['BIENVENIDA10', 'GASTRO20K'] as const;
 
 /**
  * Guarantees the seed has run before an RSC page reads the managers.
@@ -261,14 +272,27 @@ export function ensureCatalogSeeded(): SeedResult {
 }
 
 /**
- * Seeds categories + products when the in-memory stores are empty.
+ * Seeds the full demo dataset when the in-memory stores are empty.
+ * Each section (catalog, demo user, demo promotions) is guarded
+ * independently, so a process that already holds catalog data still gets
+ * the user/promotions sections added.
  * Safe to call repeatedly (instrumentation register, hot reloads).
  */
 export function seedCatalog(): SeedResult {
-  const existingCategories = categoryManager.findAll().length;
-  const existingProducts = productManager.findAll().length;
-  if (existingCategories > 0 || existingProducts > 0) {
-    return { seeded: false, categories: existingCategories, products: existingProducts };
+  const domains = [seedCatalogData(), seedDemoUser(), seedDemoPromotions()];
+
+  return {
+    seeded: domains.some((d) => d.seeded),
+    categories: domains[0].categories,
+    products: domains[0].products,
+    users: domains[1].users,
+    promotions: domains[2].promotions,
+  };
+}
+
+function seedCatalogData(): { seeded: boolean } {
+  if (categoryManager.findAll().length > 0 || productManager.findAll().length > 0) {
+    return { seeded: false };
   }
 
   const categoryIdBySlug = new Map<string, string>();
@@ -298,9 +322,76 @@ export function seedCatalog(): SeedResult {
     });
   }
 
-  return {
-    seeded: true,
-    categories: CATEGORY_SEEDS.length,
-    products: PRODUCT_SEEDS.length,
-  };
+  return { seeded: true };
 }
+
+/**
+ * Demo vendor user — explicit Phase-5 scaffolding.
+ *
+ * The storefront has no auth yet, but `CreateOrderInput.userId` is a
+ * required string; until Phase 5 wires real sessions, checkout submits
+ * attach this demo account. Idempotent by email lookup.
+ */
+function seedDemoUser(): { users: number } {
+  if (userManager.findByEmail(DEMO_USER_EMAIL)) {
+    return { users: 0 };
+  }
+  userManager.create({
+    email: DEMO_USER_EMAIL,
+    password: 'demo-password', // demo only; real auth is Phase 5
+    firstName: 'Sofía',
+    lastName: 'González',
+    phone: '+54 11 4000-0000',
+    address: [
+      {
+        street: 'Av. San Juan 2565',
+        city: 'Buenos Aires',
+        state: 'CABA',
+        zip: '1231',
+        country: 'Argentina',
+      },
+    ],
+    role: 'admin',
+  });
+  return { users: 1 };
+}
+
+/**
+ * Demo promotions so the checkout promo-code flow has a valid + an
+ * invalid/outcome to exercise end to end. Idempotent by code lookup.
+ */
+function seedDemoPromotions(): { promotions: number } {
+  const now = new Date();
+  const threeDaysAgo = new Date(now.getTime() - 3 * 86400000);
+  const sixMonths = new Date(now.getTime() + 180 * 86400000);
+
+  const promoSeeds: CreatePromotionInput[] = [
+    {
+      code: 'BIENVENIDA10',
+      discountType: 'percentage',
+      discountValue: 10,
+      minPurchase: 100000,
+      maxUses: 100,
+      validFrom: threeDaysAgo,
+      validUntil: sixMonths,
+    },
+    {
+      code: 'GASTRO20K',
+      discountType: 'fixed',
+      discountValue: 20000,
+      minPurchase: 800000,
+      maxUses: 50,
+      validFrom: threeDaysAgo,
+      validUntil: sixMonths,
+    },
+  ];
+
+  let created = 0;
+  for (const promo of promoSeeds) {
+    if (promotionManager.findByCode(promo.code)) continue;
+    promotionManager.create(promo);
+    created++;
+  }
+  return { promotions: created };
+}
+
