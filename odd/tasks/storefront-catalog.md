@@ -34,9 +34,16 @@ Out of scope: pagination beyond a simple count (follow-up note), real persistenc
 
 ## Checklist
 
-- [ ] F3-1 — Seed data + `instrumentation.ts` one-shot seeding (idempotent), categories match nav slugs.
-- [ ] F3-2 — Header nav hrefs aligned to `?category=` slugs.
-- [ ] F3-3 — `/products` listing + loading skeleton + product card + client "Agregar".
+- [x] F3-1 — Seed data + `instrumentation.ts` one-shot seeding (idempotent), categories match nav slugs.
+- [x] F3-2 — Header nav hrefs aligned to `?category=` slugs.
+- [x] F3-3 — `/products` listing + loading skeleton + product card + client "Agregar".
 - [ ] F3-4 — `/products/[id]` detail + loading skeleton + 404.
 - [ ] F3-5 — Home "Destacados" section.
 - [ ] F3-6 — Work-unit commits per slice with doc evidence ticks.
+
+## Verification evidence
+
+- `npm i` — no new packages needed this phase (zustand existed; no runtime additions). Seed verified mentally against the real contracts: `CategoryManager.create({ name, slug, description, sortOrder, isActive })` and `ProductManager.create(CreateProductInput)` from `lib/types/product.ts` (no `specs` field exists — descriptions carry the tech data; see follow-ups).
+- F3-1 — `lib/seed/catalog-seed.ts` (3 categories with slugs pollerias/cafeterias/pizzerias + 15 products with SKU, ARS prices, stock/rating spread including one stock=0 item and one stock=2 item) + `apps/web/instrumentation.ts` `register()` calling `seedCatalog()` (idempotent: skips when any manager already holds rows). `npm run build -w apps/web` exit 0, `check-types` exit 0. Commit: feat(web) c02760c. Placeholder images reuse the starter demo JPGs in `public/products/*` (backpack/headphones/etc. are electronics stand-ins — real gastro imagery is a Phase-6 content task).
+- F3-2 — Verified no-change: the Phase-2 header fallback hrefs already point to `/products?category=pollerias|cafeterias|pizzerias`, exactly the canonical slugs; seeded categories regenerate identical hrefs from `findBySlug`. Evidence folded into the F3-3 commit header.
+- F3-3 — `/products` RSC listing with `await searchParams` (Next 16 Promise style), `?category=` slug filter + `?search=` case-insensitive name match, category chips, count header ("N equipos"), unknown-category and no-match empty states, `loading.tsx` skeleton grid, `ProductCard` server component (next/image aspect-[4/3] placeholder, discount badge when compareAtPrice, es-AR rating display, SKU line, Agotado / Últimas N unidades stock signals) and `AddToCartButton` client island feeding the zustand store (drawer + header badge react). Build + check-types exit 0. Commit: feat(web) (this slice).
