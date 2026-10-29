@@ -7,6 +7,7 @@
 import Link from 'next/link';
 import { ChefHatIcon, SearchIcon } from 'lucide-react';
 import { categoryManager } from '@/lib/managers/category-manager';
+import { CartButton } from '@/components/layout/cart-drawer';
 
 interface NavCategory {
   label: string;
@@ -77,6 +78,8 @@ export function Header() {
             </Link>
           ))}
         </nav>
+
+        <CartButton />
       </div>
     </header>
   );
