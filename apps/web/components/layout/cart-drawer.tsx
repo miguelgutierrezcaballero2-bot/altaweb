@@ -160,7 +160,7 @@ export function CartDrawer() {
               </div>
               <Button
                 nativeButton={false}
-                render={<Link href="/products" />}
+                render={<Link href="/checkout" />}
                 onClick={closeCart}
               >
                 Continuar compra
