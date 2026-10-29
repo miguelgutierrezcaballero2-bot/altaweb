@@ -1,102 +1,115 @@
-import Image, { type ImageProps } from "next/image";
-import { Button } from "@repo/ui/button";
-import styles from "./page.module.css";
+/**
+ * Temporary storefront home (Phase 2).
+ * Warm hero placeholder built exclusively with the design tokens and
+ * shadcn/ui primitives; the real catalog home is Phase 3.
+ */
 
-type Props = Omit<ImageProps, "src"> & {
-  srcLight: string;
-  srcDark: string;
-};
+import Link from 'next/link';
+import {
+  CoffeeIcon,
+  CookingPotIcon,
+  FlameIcon,
+  PizzaIcon,
+  ShieldCheckIcon,
+  TruckIcon,
+} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
-const ThemeImage = (props: Props) => {
-  const { srcLight, srcDark, ...rest } = props;
+const VERTICALS = [
+  {
+    icon: FlameIcon,
+    title: 'Pollerías',
+    description: 'Spiderventas, freidoras dúplex, vitrinas térmicas y accesorios de atención.',
+  },
+  {
+    icon: CoffeeIcon,
+    title: 'Cafeterías',
+    description: 'Molinos de café, máquinas espresso, puffs térmicos y vajilla profesional.',
+  },
+  {
+    icon: PizzaIcon,
+    title: 'Pizzerías',
+    description: 'Hornos pizzeros, amasadoras, estufas de piedra y paletas de trabajo.',
+  },
+];
 
+const TRUST_POINTS = [
+  { icon: TruckIcon, label: 'Flete e instalación en todo el país' },
+  { icon: ShieldCheckIcon, label: 'Garantía oficial y repuestos' },
+  { icon: CookingPotIcon, label: 'Equipos de uso intensivo, nivel gastronomía' },
+];
+
+export default function HomePage() {
   return (
-    <>
-      <Image {...rest} src={srcLight} className="imgLight" />
-      <Image {...rest} src={srcDark} className="imgDark" />
-    </>
-  );
-};
-
-export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <ThemeImage
-          className={styles.logo}
-          srcLight="turborepo-dark.svg"
-          srcDark="turborepo-light.svg"
-          alt="Turborepo logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>apps/web/app/page.tsx</code>
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new/clone?demo-description=Learn+to+implement+a+monorepo+with+a+two+Next.js+sites+that+has+installed+three+local+packages.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4K8ZISWAzJ8X1504ca0zmC%2F0b21a1c6246add355e55816278ef54bc%2FBasic.png&demo-title=Monorepo+with+Turborepo&demo-url=https%3A%2F%2Fexamples-basic-web.vercel.sh%2F&from=templates&project-name=Monorepo+with+Turborepo&repository-name=monorepo-turborepo&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fturborepo%2Ftree%2Fmain%2Fexamples%2Fbasic&root-directory=apps%2Fdocs&skippable-integrations=1&teamSlug=vercel&utm_source=create-turbo"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://turborepo.dev/docs?utm_source"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+    <main className="mx-auto max-w-7xl px-4 py-12 sm:py-16">
+      <section className="mx-auto max-w-3xl space-y-5 text-center">
+        <Badge variant="secondary" className="text-sm">
+          Ventas mayoristas B2B
+        </Badge>
+        <h1 className="text-4xl font-bold tracking-tight text-balance sm:text-5xl">
+          Equipamiento gastronómico para tu negocio
+        </h1>
+        <p className="text-lg text-muted-foreground text-pretty">
+          Armá y equipá pollerías, cafeterías y pizzerías con maquinaria de uso
+          intensivo: freidoras, hornos, café y refrigeración comercial, con
+          asesoramiento y garantía oficial.
+        </p>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <Button size="lg" render={<Link href="/products" />}>
+            Ver catálogo
+          </Button>
+          <Button size="lg" variant="outline" render={<Link href="/design-preview" />}>
+            Preview del sistema de diseño
+          </Button>
         </div>
-        <Button className={styles.secondary}>
-          Open alert
-        </Button>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com/templates?search=turborepo&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://turborepo.dev?utm_source=create-turbo"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to turborepo.dev →
-        </a>
-      </footer>
-    </div>
+      </section>
+
+      <section
+        aria-label="Rubros atendidos"
+        className="mx-auto mt-14 grid gap-4 sm:grid-cols-3"
+      >
+        {VERTICALS.map((vertical) => (
+          <Card key={vertical.title} className="gap-4">
+            <CardHeader>
+              <span className="flex size-10 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">
+                <vertical.icon className="size-5" />
+              </span>
+              <CardTitle className="text-lg">{vertical.title}</CardTitle>
+              <CardDescription>{vertical.description}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button
+                variant="link"
+                size="sm"
+                className="px-0"
+                render={<Link href="/products" />}
+              >
+                Ver catálogo de {vertical.title.toLowerCase()}
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </section>
+
+      <section
+        aria-label="Beneficios de comprar en AltaCocina"
+        className="mx-auto mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 border-t border-border pt-8 text-sm text-muted-foreground"
+      >
+        {TRUST_POINTS.map((point) => (
+          <span key={point.label} className="flex items-center gap-2">
+            <point.icon className="size-4 text-primary" />
+            {point.label}
+          </span>
+        ))}
+      </section>
+    </main>
   );
 }
