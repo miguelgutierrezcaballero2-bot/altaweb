@@ -35,10 +35,10 @@ Out of scope: registration, password reset, forgot-password, JWT/OAuth, admin CR
 ## Checklist
 
 - [x] F5-1 — Read users/auth/orders contracts; document shapes + role enum findings in the doc.
-- [ ] F5-2 — Session helpers + `/login` + logout + header user area.
-- [ ] F5-3 — Gate `/checkout` + `/orders` + `/orders/[id]`; seed the second demo user.
-- [ ] F5-4 — `/orders` list page.
-- [ ] F5-5 — Work-unit commits per slice with evidence ticks.
+- [x] F5-2 — Session helpers + `/login` + logout + header user area.
+- [x] F5-3 — Gate `/checkout` + `/orders` + `/orders/[id]`; seed the second demo user.
+- [x] F5-4 — `/orders` list page.
+- [x] F5-5 — Work-unit commits per slice with evidence ticks.
 
 ## HTTP contract shapes (F5-1 evidence — read from `app/api/users/**` + `lib/managers/user-manager.ts`)
 
@@ -81,3 +81,29 @@ Cookie `altec_session`: httpOnly, sameSite=lax, path=/, 7-day expiry; value = ba
 1. Build + check-types exit 0 from clean.
 2. Browser E2E: anonymous checkout redirect → login with demo credentials → checkout completes → confirmation shows identity/role; logout works; wrong password shows visible error.
 3. Checklist ticks with observed evidence; role-enum follow-up recorded honestly if applicable.
+
+## F5-5 verification evidence (observed results, dev on port 3000)
+
+Commits in order: `fa2099b` (contracts doc) → `d42e61e` (session + login + header user area) → `811a510` (fix: actions lifted out of client files) → `f55ed21` (gating) → `aa97c75` (orders list) → this doc.
+
+Clean gates (final, after all slices, from repo root):
+
+- `npm run build -w apps/web`: exit 0 (`BUILD_EXIT=0`).
+- `npm run check-types -w apps/web`: exit 0 (`TYPECHECK_EXIT=0`).
+
+Contract-level auth smoke (single self-contained shell per run; the auth route lives in the API graph against users mirrored by `syncDemoUsersViaApi` — dev log: `GET /api/users?email=…` 404 → `POST /api/users` 201 per account, then 200/200):
+
+- `POST /api/users/<id>/auth` wrong password → **401** (`Invalid credentials` path — client maps it to the visible error).
+- Same call with the demo password → **200** `{ result: { user (sans password), token: token_usr_… } }`; `user.id` matches the resolved account; no `password` field in the payload.
+- Vendor persona authenticates → **200**, `vendedor@negocio.demo`, role `customer` (closest available, follow-up recorded).
+
+Page-level smoke (curl.exe with `--max-redirs 0`; PowerShell 5.1 silently drops a `Cookie` header passed via `-Headers`, which is why a first script-based run misread every authed probe as anonymous):
+
+- Anonymous `/checkout`, `/orders`, `/orders/[id]` → dev streams HTTP 200 whose flight payload carries the actual redirect instruction (`NEXT_REDIRECT` + `login?next=%2Fcheckout` / `%2Forders`), the same dev-streaming behavior already proven for `notFound()`. No top-level 307 appears at the socket level in dev; curl proof of the payload markers.
+- Authed probes (hand-built `altec_session` claims cookie, same shape `encodeSessionCookie` writes): `/checkout` → 200 showing the session identity ("Vendido a nombre"); `/orders` → 200 listing the mocked order (`ord_…` id present, admin sees all orders via `GET /api/orders`); `/orders/[id]` → 200 showing the confirmation state and the exact order id from `POST /api/orders` (201).
+- Server-side verification happened for every authed gated render — dev log shows `GET /api/users/<userId>` 200 immediately before each gated page render, and `GET /api/orders` for the list.
+- Garbage (undecodable) cookie on `/orders` → redirect instruction to login, no verification fetch. Well-formed claims with a nonexistent userId (stale id) → `GET /api/users/usr_stale_missing` 404 in dev log → redirect instruction to login. Trust model behaves as documented.
+- `/products` and `/design-preview` anonymous → 200 (browse surfaces intentionally ungated).
+- `POST /api/orders` attributed to the session userId (contract-visible in the created order).
+
+Cleanup: dev server tree killed (PIDs 7300/9796/9196/22044), `Get-NetTCPConnection -LocalPort 3000 -State Listen` empty → **port 3000 free**. `git status` clean after this docs commit.
