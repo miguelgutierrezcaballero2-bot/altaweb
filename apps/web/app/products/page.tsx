@@ -7,8 +7,11 @@
  */
 
 import Link from 'next/link';
-import { categoryManager } from '@/lib/managers/category-manager';
+import {
+  categoryManager,
+} from '@/lib/managers/category-manager';
 import { productManager } from '@/lib/managers/product-manager';
+import { ensureCatalogSeeded } from '@/lib/seed/catalog-seed';
 import { ProductCard } from '@/components/catalog/product-card';
 
 interface ProductsPageProps {
@@ -23,6 +26,8 @@ function normalizeParam(value: string | string[] | undefined): string | undefine
 }
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
+  // Render workers may boot with empty singleton maps; guarantee the seed.
+  ensureCatalogSeeded();
   const params = await searchParams;
   const search = normalizeParam(params.search);
   const categorySlug = normalizeParam(params.category);

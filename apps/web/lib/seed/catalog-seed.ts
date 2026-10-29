@@ -249,6 +249,18 @@ export interface SeedResult {
 }
 
 /**
+ * Guarantees the seed has run before an RSC page reads the managers.
+ *
+ * Why not rely on instrumentation alone: `register()` runs in the server
+ * boot process, but `next dev` may render RSC pages in a separate worker
+ * whose in-memory singleton maps start empty. This per-process idempotent
+ * guard makes any render topology equivalent.
+ */
+export function ensureCatalogSeeded(): SeedResult {
+  return seedCatalog();
+}
+
+/**
  * Seeds categories + products when the in-memory stores are empty.
  * Safe to call repeatedly (instrumentation register, hot reloads).
  */

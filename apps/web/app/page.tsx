@@ -23,6 +23,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { productManager } from '@/lib/managers/product-manager';
+import { ensureCatalogSeeded } from '@/lib/seed/catalog-seed';
 import { ProductCard } from '@/components/catalog/product-card';
 
 const VERTICALS = [
@@ -50,6 +51,8 @@ const TRUST_POINTS = [
 ];
 
 export default function HomePage() {
+  // Render workers may boot with empty singleton maps; guarantee the seed.
+  ensureCatalogSeeded();
   // Deterministic featured pick: top-rated active seed data, stable by
   // rating desc then price asc then id, capped at 4 for the home grid.
   const destacados = productManager

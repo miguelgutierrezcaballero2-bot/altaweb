@@ -17,12 +17,15 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { formatPrice } from '@/components/catalog/product-card';
+import { ensureCatalogSeeded } from '@/lib/seed/catalog-seed';
 
 interface ProductDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
+  // Render workers may boot with empty singleton maps; guarantee the seed.
+  ensureCatalogSeeded();
   const { id } = await params;
   const product = productManager.findById(id);
 
