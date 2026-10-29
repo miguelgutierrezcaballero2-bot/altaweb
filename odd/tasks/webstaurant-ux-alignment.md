@@ -55,10 +55,10 @@ Domain layer (`lib/managers/**`, `lib/types/**`, `app/api/**`) is untouched. Fea
 
 ### Phase 7
 - [x] F7-1 — Read category/promo/header/home contracts; document shapes + limits in this doc.
-- [ ] F7-2 — Header three-row rebuild (utility/search/category bar).
-- [ ] F7-3 — Category mega-menu component.
-- [ ] F7-4 — Home merchandising rebuild (campaigns, tiles, deals row, quote block).
-- [ ] F7-5 — E2E suite green + home smoke test; ticks + evidence.
+- [x] F7-2 — Header three-row rebuild (utility/search/category bar).
+- [x] F7-3 — Category mega-menu component.
+- [x] F7-4 — Home merchandising rebuild (campaigns, tiles, deals row, quote block).
+- [x] F7-5 — E2E suite green + home smoke test; ticks + evidence.
 
 ### Phase 8
 - [ ] F8-1 — PLP facets/sort/chips contract use + implementation.
@@ -107,3 +107,30 @@ Domain layer (`lib/managers/**`, `lib/types/**`, `app/api/**`) is untouched. Fea
 - Footer copy for the trust strip: `ventas@altacocina.com`, `Lun a Vie 9–18 h`, `Cotizaciones B2B por rubro`, flete e instalación.
 - Playwright dependency scan: money-flow/gating specs use the login page heading, form-scoped `Iniciar sesión` submit, user-menu button name, drawer + checkout ids `#businessName`…`#zip`, `Validar`/`Confirmar pedido` texts — none touch the header search/nav markup; the rebuild keeps `?search=` + `?category=` query contracts unchanged, so no test edits expected.
 - Quote block honesty: no quote-route exists in phases 1-9-up-to-now → Phase 7 renders a teaser section (`#cotizacion`) with real contact chips (`ventas@altacocina.com` mailto CTA) and an explicit "formulario en preparación" note; no dead `/quote` route.
+
+## F7-2..F7-5 verification evidence (observed results)
+
+Commits in order: `0c50913` (F7-1 doc) → `aaa8a31` (mega-menu component) → `2fbea09` (three-row header) → `c7d3594` (merchandising home) → `fb63f47` (money-flow test scope fix) → this doc.
+
+Clean gates (final, after all slices including the prod-build E2E runs, from repo root):
+
+- `npm run build -w apps/web`: exit 0 (`BUILD_EXIT=0`).
+- `npm run check-types -w apps/web`: exit 0 (`TYPECHECK_EXIT=0`).
+- `npm run e2e -w apps/web`: **5 passed** (45.1s) on msedge against the production build (port 3100): 3 gating + money flow + styled not-found. One run failed before the fix (honest record): 4 passed / money-flow strict-mode failure — see below.
+
+Test-locator impact (declared, per the same-commit rule):
+
+- The header mega-menu renders every rubro panel SSR page-wide, so money-flow's page-wide `getByText(/Freidora/)` on the order confirmation resolved to 3 elements (panel description + panel product link + order item) and tripped strict mode (first run: 4 passed / 1 failed — not committed on red). Fixed by scoping to `getByRole('main')`; no production behavior relaxed. Commit `fb63f47` states the change.
+
+Dev smoke (observed, dev on port 3001 — see port note):
+
+- Header three rows render: utility band with flete copy + `Mis pedidos` + user menu + `Abrir carrito` trigger; prominent search field; category bar with real seeded rubros (`Pollerías`/`Cafeterías`/`Pizzerías`) and per-rubro panels showing the real descriptions plus the category's top-rated products (`Equipos del rubro` panels observed on every page).
+- Home merchandising: seeded promo codes `BIENVENIDA10` and `GASTRO20K` render with honest copy (`10% de descuento`, `compras desde …`, `Ingresá el código al confirmar tu pedido`); `#cotizacion` anchor present with the `fase 9` form-in-progress note and mailto CTA; Destacados row renders the featured grid (price `1.845.000` card among them).
+- Contracts intact: `/products?search=freidora` returns the searched cards; `/products?category=cafeterias` returns the cafeterías grid.
+- Promotion filtering uses `promotionManager.getActivePromotions()` (isActive + validity window), sorted deterministically by code — no fake promos, no invented discount semantics.
+
+Port note (honest): dev-on-3000 hit transient `EADDRINUSE` (Twice) while `Get-NetTCPConnection` and netstat showed no listener; my curls succeeded — i.e., an environment-level proxy endpoint held 3000 outside of this session's process visibility. Smoke therefore ran on dev port 3001 (CLI override only; no config or script change). At teardown, the Win32_Process ownership filter also found and killed a stale `next dev --port 3000` process-tree node (PID 13024) — permitted target per the ownership rule (node.exe + AltaCocina/next cmdline; ttyd/codegraph untouched). Final state: ports 3000/3001/3100 all FREE per `Get-NetTCPConnection`.
+
+Domain honesty audit (F7): ratings/brands/specs/subcategories/tiered pricing — none invented; the mega-menu shows real descriptions + real products (cap 6, top-rated, isActive-filtered) instead of fake subcategory trees; campaign copy derives strictly from `discountType`/`minPurchase`; category tiles map slugs to icons because the contract carries no image data (fallback icon for future slugs).
+
+Follow-ups (recorded, not phase-7 scope): real subcategory taxonomy is a domain extension (F8/9); web quote form is fase 9 by design; `.gitignore` for `test-results/` pending (phase-6 recorded follow-up).
