@@ -1,41 +1,95 @@
 /**
- * Storefront header — server component (RSC-first).
- * Reads categories from the in-memory manager; falls back to the three
- * storefront verticals until categories are seeded (Phase 3).
+ * Storefront header — server component, three-row rebuild (Fase 7).
+ *
+ * Row 1 (utility): B2B tagline + Mis pedidos + user menu + cart.
+ * Row 2 (search):  brand + prominent full-width search (?search= contract).
+ * Row 3 (categories): category bar; desktop hover mega-panels from the real
+ * category contract, mobile drawer via a Sheet trigger (phase 7 model).
+ * Seed is guaranteed before manager reads (render-worker graphs).
  */
 
 import Link from 'next/link';
-import { ChefHatIcon, SearchIcon } from 'lucide-react';
+import {
+  ChefHatIcon,
+  ReceiptTextIcon,
+  SearchIcon,
+  TruckIcon,
+} from 'lucide-react';
 import { categoryManager } from '@/lib/managers/category-manager';
+import { productManager } from '@/lib/managers/product-manager';
+import { ensureCatalogSeeded } from '@/lib/seed/catalog-seed';
 import { CartButton } from '@/components/layout/cart-drawer';
 import { UserMenu } from '@/components/layout/user-menu';
+import {
+  CategoryMegamenu,
+  type MegaCategory,
+} from '@/components/layout/category-megamenu';
 import { getSessionClaims } from '@/lib/auth/session';
 
-interface NavCategory {
-  label: string;
-  href: string;
-}
-
-const FALLBACK_CATEGORIES: NavCategory[] = [
-  { label: 'Pollerías', href: '/products?category=pollerias' },
-  { label: 'Cafeterías', href: '/products?category=cafeterias' },
-  { label: 'Pizzerías', href: '/products?category=pizzerias' },
-];
-
-function loadCategories(): NavCategory[] {
-  const stored = categoryManager.findAll().sort((a, b) => a.sortOrder - b.sortOrder);
-  // In-memory store starts empty; seed fallback keeps the nav useful pre-seeding.
-  if (stored.length === 0) return FALLBACK_CATEGORIES;
-  return stored.map((c) => ({ label: c.name, href: `/products?category=${c.slug}` }));
+/**
+ * Mega-menu data from the REAL contract: category fields as-is, and the
+ * supporting list is the category's actual products (top-rated first, cap
+ * 6). The contract has no subcategories in the data, so none are faked.
+ */
+function loadMegaCategories(): MegaCategory[] {
+  // Render workers may boot with empty singleton maps; guarantee the seed.
+  ensureCatalogSeeded();
+  const categories = categoryManager
+    .findAll()
+    .toSorted((a, b) => a.sortOrder - b.sortOrder);
+  return categories.map((category) => ({
+    name: category.name,
+    slug: category.slug,
+    description: category.description,
+    products: productManager
+      .findByCategory(category.id)
+      .filter((product) => product.isActive)
+      .toSorted((a, b) => b.rating - a.rating)
+      .slice(0, 6)
+      .map((product) => ({ id: product.id, name: product.name })),
+  }));
 }
 
 export async function Header() {
-  const categories = loadCategories();
+  const megaCategories = loadMegaCategories();
   // Cookie claims for display; gated routes verify against the users contract.
   const session = await getSessionClaims();
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background">
+      {/* Row 1 — utility */}
+      <div className="bg-secondary text-secondary-foreground">
+        <div className="mx-auto flex h-9 max-w-7xl items-center justify-between gap-3 px-4">
+          <p className="hidden min-w-0 items-center gap-1.5 text-xs font-medium sm:flex">
+            <TruckIcon className="size-3.5 shrink-0" />
+            Ventas mayoristas B2B · flete e instalación en todo el país
+          </p>
+          <nav
+            aria-label="Cuenta y pedidos"
+            className="flex items-center gap-2 sm:gap-3"
+          >
+            <Link
+              href="/orders"
+              className="flex items-center gap-1.5 text-xs font-semibold hover:underline underline-offset-4"
+            >
+              <ReceiptTextIcon className="size-3.5" />
+              Mis pedidos
+            </Link>
+            <UserMenu
+              session={
+                session && {
+                  fullName: session.fullName,
+                  email: session.email,
+                  role: session.role,
+                }
+              }
+            />
+            <CartButton />
+          </nav>
+        </div>
+      </div>
+
+      {/* Row 2 — brand + prominent search */}
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:gap-8">
         <Link
           href="/"
@@ -48,50 +102,24 @@ export async function Header() {
         </Link>
 
         {/* Server-rendered search: native GET form, no client JS. */}
-        <form
-          action="/products"
-          method="get"
-          className="flex min-w-0 flex-1 items-center gap-2"
-        >
+        <form action="/products" method="get" className="flex min-w-0 flex-1 items-center gap-2">
           <div className="relative w-full">
             <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="search"
               name="search"
-              placeholder="Buscar equipos, freidoras, hornos…"
+              placeholder="¿Qué está buscando? Equipos, freidoras, hornos…"
               aria-label="Buscar productos"
-              className="h-9 w-full rounded-lg border border-input bg-card pl-9 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+              className="h-10 w-full rounded-lg border border-input bg-card pl-9 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
             />
           </div>
         </form>
-
-        <nav aria-label="Categorías" className="hidden items-center gap-1 lg:flex">
-          <Link
-            href="/"
-            className="rounded-md px-2.5 py-1.5 text-sm font-medium text-foreground/80 hover:bg-muted hover:text-foreground"
-          >
-            Inicio
-          </Link>
-          {categories.map((category) => (
-            <Link
-              key={category.href}
-              href={category.href}
-              className="rounded-md px-2.5 py-1.5 text-sm font-medium text-foreground/80 hover:bg-muted hover:text-foreground"
-            >
-              {category.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="flex shrink-0 items-center gap-2">
-          <UserMenu
-            session={
-              session && { fullName: session.fullName, email: session.email, role: session.role }
-            }
-          />
-          <CartButton />
-        </div>
       </div>
+
+      {/* Row 3 — category bar: mega-menu desktop / accordion drawer mobile */}
+      <nav aria-label="Categorías" className="border-t border-border">
+        <CategoryMegamenu categories={megaCategories} />
+      </nav>
     </header>
   );
 }
