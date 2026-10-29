@@ -288,6 +288,26 @@ const DEMO_USER_INPUTS = [
       },
     ],
   },
+  {
+    // Vendor persona. The domain enum is 'customer' | 'admin' and has no
+    // vendor role (honest-read rule): closest role is 'customer', the UI
+    // labels it as such, and the enum extension is a recorded follow-up.
+    email: 'vendedor@negocio.demo',
+    password: 'demo-password',
+    firstName: 'Martín',
+    lastName: 'Díaz',
+    phone: '+54 11 4777-0000',
+    role: 'customer' as const,
+    address: [
+      {
+        street: 'Bv. Oro 1930',
+        city: 'Buenos Aires',
+        state: 'CABA',
+        zip: '1427',
+        country: 'Argentina',
+      },
+    ],
+  },
 ] as const;
 
 export const DEMO_LOGIN_ACCOUNTS: DemoAccount[] = DEMO_USER_INPUTS.map((user) => ({

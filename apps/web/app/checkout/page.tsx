@@ -1,39 +1,33 @@
 /**
  * `/checkout` — checkout shell (RSC).
  *
- * The page itself is server-rendered; the form is the client island.
- * The demo vendor user is resolved here (Phase-5-auth scaffolding) and the
- * seed is guaranteed before the reads, following the Phase 3 pattern.
+ * Gated (Phase 5): requires a verified session; any authenticated role can
+ * sell (vendor = sales-only). Orders are attributed to the session user.
+ * The page mirrors the demo promo codes into the API module graph (dev
+ * graphs isolation) and guarantees the seed before its reads.
  */
 
-import Link from 'next/link';
-import { headers } from 'next/headers';
 import { ShieldCheckIcon } from 'lucide-react';
-import { userManager } from '@/lib/managers/user-manager';
 import {
   DEMO_PROMO_CODES,
-  DEMO_USER_EMAIL,
   ensureCatalogSeeded,
   syncDemoPromotionsViaApi,
 } from '@/lib/seed/catalog-seed';
+import { getOwnOriginUrl, requireVerifiedSession } from '@/lib/auth/session';
 import { CheckoutForm } from '@/components/checkout/checkout-form';
 
 export default async function CheckoutPage() {
+  // Gate first: anonymous users are redirected to /login?next=/checkout.
+  const session = await requireVerifiedSession('/checkout');
+
   // Render workers may boot with empty singleton maps; guarantee the seed.
   ensureCatalogSeeded();
 
-  // The validate/applying routes run in the API module graph (dev renders
-  // boot/pages/api managers as separate instances), so the demo codes are
-  // mirrored there through the promotions HTTP contract before the form
-  // can exercise them.
-  const headersList = await headers();
-  const host = headersList.get('host') ?? 'localhost:3000';
-  const protocol = host.startsWith('localhost') || host.startsWith('127.0.0.1')
-    ? 'http'
-    : 'https';
-  await syncDemoPromotionsViaApi(`${protocol}://${host}`);
-
-  const demoUser = userManager.findByEmail(DEMO_USER_EMAIL);
+  // The validate/applying routes run in the API module graph, so the demo
+  // codes are mirrored there through the promotions HTTP contract before
+  // the form can exercise them.
+  const origin = await getOwnOriginUrl();
+  await syncDemoPromotionsViaApi(origin);
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10">
@@ -41,13 +35,13 @@ export default async function CheckoutPage() {
         <h1 className="text-3xl font-bold tracking-tight">Finalizar compra</h1>
         <p className="text-muted-foreground">
           Completá los datos del negocio, validá tu código y estimá el envío.
-          Cuenta para facturación B2B, no requiere registro.
+          Vendido a nombre de <span className="font-medium">{session.fullName}</span>.
         </p>
       </header>
 
       <div className="mt-8">
         <CheckoutForm
-          demoUserId={demoUser?.id ?? null}
+          demoUserId={session.userId}
           demoPromoCodes={DEMO_PROMO_CODES}
         />
       </div>

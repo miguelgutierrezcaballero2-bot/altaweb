@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { formatPrice } from '@/components/catalog/product-card';
+import { requireVerifiedSession } from '@/lib/auth/session';
 
 /** HTTP-serialized Address as returned by the orders/shipping APIs. */
 interface AddressView {
@@ -81,6 +82,9 @@ export default async function OrderConfirmationPage({
   params,
 }: OrderConfirmationPageProps) {
   const { id } = await params;
+
+  // Gate (Phase 5): verified session or /login?next=/orders/<id>.
+  await requireVerifiedSession(`/orders/${id}`);
 
   const headersList = await headers();
   const host = headersList.get('host') ?? 'localhost:3000';
