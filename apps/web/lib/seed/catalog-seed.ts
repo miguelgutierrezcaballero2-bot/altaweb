@@ -253,8 +253,49 @@ export interface SeedResult {
   promotions: number;
 }
 
-/** Demo vendor user marker (Phase-5-auth scaffolding — see seedDemoUser). */
+/** Demo vendor user marker (Phase-5-auth scaffolding — see seedDemoUsers). */
 export const DEMO_USER_EMAIL = 'compras@negocio.demo';
+
+/** Demo login accounts shown as a hint on /login (demo passwords, per doc constraint). */
+export interface DemoAccount {
+  email: string;
+  password: string;
+  fullName: string;
+  role: 'admin' | 'customer';
+}
+
+/**
+ * Demo users, data-driven so seeding and the API-graph mirror share one
+ * source of truth. Purchases account = admin; vendor persona = 'customer'
+ * because the domain role enum (customer | admin) has no vendor role
+ * (honest labeling + recorded follow-up).
+ */
+const DEMO_USER_INPUTS = [
+  {
+    email: DEMO_USER_EMAIL,
+    password: 'demo-password',
+    firstName: 'Sofía',
+    lastName: 'González',
+    phone: '+54 11 4000-0000',
+    role: 'admin' as const,
+    address: [
+      {
+        street: 'Av. San Juan 2565',
+        city: 'Buenos Aires',
+        state: 'CABA',
+        zip: '1231',
+        country: 'Argentina',
+      },
+    ],
+  },
+] as const;
+
+export const DEMO_LOGIN_ACCOUNTS: DemoAccount[] = DEMO_USER_INPUTS.map((user) => ({
+  email: user.email,
+  password: user.password,
+  fullName: `${user.firstName} ${user.lastName}`,
+  role: user.role,
+}));
 
 /** Demo promo codes displayed as a hint in the checkout form. */
 export const DEMO_PROMO_CODES = ['BIENVENIDA10', 'GASTRO20K'] as const;
@@ -280,14 +321,14 @@ export function ensureCatalogSeeded(): SeedResult {
  */
 export function seedCatalog(): SeedResult {
   const catalog = seedCatalogData();
-  const user = seedDemoUser();
+  const users = seedDemoUsers();
   const promos = seedDemoPromotions();
 
   return {
-    seeded: catalog.seeded || user.seeded || promos.seeded,
+    seeded: catalog.seeded || users.seeded || promos.seeded,
     categories: catalog.categories,
     products: catalog.products,
-    users: user.users,
+    users: users.users,
     promotions: promos.promotions,
   };
 }
@@ -328,34 +369,30 @@ function seedCatalogData(): { seeded: boolean; categories: number; products: num
 }
 
 /**
- * Demo vendor user — explicit Phase-5 scaffolding.
+ * Demo users — Phase-5 auth scaffolding.
  *
- * The storefront has no auth yet, but `CreateOrderInput.userId` is a
- * required string; until Phase 5 wires real sessions, checkout submits
- * attach this demo account. Idempotent by email lookup.
+ * The storefront login depends on the users HTTP contract, and dev keeps
+ * seeded users invisible to the API route graph (Phase-4 lesson), so these
+ * accounts are (a) seeded into boot/render graphs here and (b) mirrored
+ * into the API graph by syncDemoUsersViaApi from the /login shell.
+ * Idempotent by email lookup.
  */
-function seedDemoUser(): { seeded: boolean; users: number } {
-  if (userManager.findByEmail(DEMO_USER_EMAIL)) {
-    return { seeded: false, users: 0 };
+function seedDemoUsers(): { seeded: boolean; users: number } {
+  let created = 0;
+  for (const input of DEMO_USER_INPUTS) {
+    if (userManager.findByEmail(input.email)) continue;
+    userManager.create({
+      email: input.email,
+      password: input.password,
+      firstName: input.firstName,
+      lastName: input.lastName,
+      phone: input.phone,
+      address: [...input.address],
+      role: input.role,
+    });
+    created++;
   }
-  userManager.create({
-    email: DEMO_USER_EMAIL,
-    password: 'demo-password', // demo only; real auth is Phase 5
-    firstName: 'Sofía',
-    lastName: 'González',
-    phone: '+54 11 4000-0000',
-    address: [
-      {
-        street: 'Av. San Juan 2565',
-        city: 'Buenos Aires',
-        state: 'CABA',
-        zip: '1231',
-        country: 'Argentina',
-      },
-    ],
-    role: 'admin',
-  });
-  return { seeded: true, users: 1 };
+  return { seeded: created > 0, users: created };
 }
 
 /**
@@ -418,6 +455,32 @@ export async function syncDemoPromotionsViaApi(baseUrl: string): Promise<string[
       body: JSON.stringify(promo),
     });
     if (create.ok) synced.push(promo.code);
+  }
+  return synced;
+}
+
+/**
+ * Mirror of the demo users into the API module graph through the users
+ * HTTP contract. Login works against /api/users (the auth route runs in
+ * the API graph), so seeded users are mirrored here: GET ?email= returning
+ * 404 means the API-side manager has not seen the email yet; POST it with
+ * the documented demo credentials. Idempotent by the GET check, on top of
+ * the manager's per-email idempotency.
+ */
+export async function syncDemoUsersViaApi(baseUrl: string): Promise<string[]> {
+  const synced: string[] = [];
+  for (const user of DEMO_USER_INPUTS) {
+    const check = await fetch(
+      `${baseUrl}/api/users?email=${encodeURIComponent(user.email)}`,
+      { cache: 'no-store' },
+    );
+    if (check.ok) continue; // already visible to the API routes
+    const create = await fetch(`${baseUrl}/api/users`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(user),
+    });
+    if (create.ok) synced.push(user.email);
   }
   return synced;
 }

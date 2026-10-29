@@ -1,0 +1,104 @@
+"use client";
+
+/**
+ * Header user area — login link when anonymous, account dropdown when
+ * authenticated. Session identity arrives read-only from the server header
+ * (cookie claims); logout is an inline server action clearing the cookie
+ * and returning home.
+ */
+
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { LogInIcon, LogOutIcon, ReceiptTextIcon, UserIcon } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import type { SessionRole } from '@/lib/auth/session';
+
+/** Server action: clears the session cookie and returns home. */
+async function signOutAction() {
+  'use server';
+  const { clearSessionCookie } = await import('@/lib/auth/session');
+  const { redirect: actionRedirect } = await import('next/navigation');
+  await clearSessionCookie();
+  actionRedirect('/');
+}
+
+interface UserMenuSession {
+  fullName: string;
+  email: string;
+  role: SessionRole;
+}
+
+export function UserMenu({ session }: { session: UserMenuSession | null }) {
+  const router = useRouter();
+  const [signingOut, setSigningOut] = useState(false);
+
+  if (!session) {
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        nativeButton={false}
+        render={<Link href="/login" />}
+      >
+        <LogInIcon data-icon="inline-start" />
+        Iniciar sesión
+      </Button>
+    );
+  }
+
+  const roleLabel = session.role === 'admin' ? 'Administrador' : 'Cliente';
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button variant="outline" size="sm" disabled={signingOut}>
+            <UserIcon data-icon="inline-start" />
+            <span className="max-w-28 truncate">{session.fullName}</span>
+          </Button>
+        }
+      />
+      <DropdownMenuContent align="end" className="w-60">
+        <DropdownMenuLabel>
+          <span className="block text-sm font-semibold text-foreground">
+            {session.fullName}
+          </span>
+          <span className="block truncate text-xs font-normal">{session.email}</span>
+        </DropdownMenuLabel>
+        <div className="flex items-center gap-2 px-1.5 py-1">
+          <Badge variant="secondary">{roleLabel}</Badge>
+          {session.role === 'customer' && (
+            <span className="text-[10px] text-muted-foreground">
+              rol vendedor pendiente en el dominio
+            </span>
+          )}
+        </div>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => router.push('/orders')}>
+          <ReceiptTextIcon />
+          Mis pedidos
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          variant="destructive"
+          onClick={() => {
+            setSigningOut(true);
+            void signOutAction();
+          }}
+        >
+          <LogOutIcon />
+          Cerrar sesión
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}

@@ -8,6 +8,8 @@ import Link from 'next/link';
 import { ChefHatIcon, SearchIcon } from 'lucide-react';
 import { categoryManager } from '@/lib/managers/category-manager';
 import { CartButton } from '@/components/layout/cart-drawer';
+import { UserMenu } from '@/components/layout/user-menu';
+import { getSessionClaims } from '@/lib/auth/session';
 
 interface NavCategory {
   label: string;
@@ -27,8 +29,10 @@ function loadCategories(): NavCategory[] {
   return stored.map((c) => ({ label: c.name, href: `/products?category=${c.slug}` }));
 }
 
-export function Header() {
+export async function Header() {
   const categories = loadCategories();
+  // Cookie claims for display; gated routes verify against the users contract.
+  const session = await getSessionClaims();
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background">
@@ -79,7 +83,14 @@ export function Header() {
           ))}
         </nav>
 
-        <CartButton />
+        <div className="flex shrink-0 items-center gap-2">
+          <UserMenu
+            session={
+              session && { fullName: session.fullName, email: session.email, role: session.role }
+            }
+          />
+          <CartButton />
+        </div>
       </div>
     </header>
   );
