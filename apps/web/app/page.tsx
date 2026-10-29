@@ -22,6 +22,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { productManager } from '@/lib/managers/product-manager';
+import { ProductCard } from '@/components/catalog/product-card';
 
 const VERTICALS = [
   {
@@ -48,6 +50,15 @@ const TRUST_POINTS = [
 ];
 
 export default function HomePage() {
+  // Deterministic featured pick: top-rated active seed data, stable by
+  // rating desc then price asc then id, capped at 4 for the home grid.
+  const destacados = productManager
+    .getFeatured()
+    .toSorted(
+      (a, b) => b.rating - a.rating || a.price - b.price || a.id.localeCompare(b.id)
+    )
+    .slice(0, 4);
+
   return (
     <main className="mx-auto max-w-7xl px-4 py-12 sm:py-16">
       <section className="mx-auto max-w-3xl space-y-5 text-center">
@@ -99,6 +110,27 @@ export default function HomePage() {
           </Card>
         ))}
       </section>
+
+      {destacados.length > 0 && (
+        <section aria-label="Equipos destacados" className="mt-14 space-y-6">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div className="space-y-1">
+              <h2 className="text-2xl font-bold tracking-tight">Destacados</h2>
+              <p className="text-muted-foreground">
+                Los equipos mejor valorados por nuestros clientes B2B.
+              </p>
+            </div>
+            <Button variant="outline" render={<Link href="/products" />}>
+              Ver catálogo completo
+            </Button>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {destacados.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <section
         aria-label="Beneficios de comprar en AltaCocina"
