@@ -39,7 +39,7 @@ Out of scope (later phases, tracked separately):
 - [x] F1-2 — Define the gastronomic token scale in `@theme` (shadcn semantic names: background/foreground/primary/secondary/muted/accent/destructive/border/ring/card/input + warm AltaCocina values; keep LUXE vars as legacy block). Verify: build passes, demo page still renders.
 - [x] F1-3 — shadcn init (`components.json`) + generate primitives: button, badge, card, input, label, textarea, select, slider, dialog, sheet, dropdown-menu, tabs, separator, skeleton, table, sonner/toast. Verify: files exist, build passes.
 - [x] F1-4 — `/design-preview` page rendering palette swatches + key primitives in both light usage and hover states. Verify: dev server responds 200 on `/design-preview`, build passes.
-- [ ] F1-5 — Work-unit commit(s) recorded in this document with evidence.
+- [x] F1-5 — Work-unit commit(s) recorded in this document with evidence.
 
 ## Follow-ups (pending user/domain-layer decision)
 
@@ -51,7 +51,8 @@ Out of scope (later phases, tracked separately):
 - `npm i -w apps/web tailwindcss@^4 @tailwindcss/postcss@^4 postcss` — completed cleanly (tailwindcss 4.3.3); deps placed in devDependencies.
 - Gastronomic tokens build verified — `npm run build -w apps/web` exit 0 with the `@theme inline` semantic scale + legacy LUXE block coexisting. Commit: feat(web) 6e73b9a.
 - shadcn generation — `npx shadcn@latest init` wrote `components.json` (style base-nova); `npx shadcn@latest add ...` generated 16 primitives into `apps/web/components/ui`. CLI-spawned npm install was rejected by the machine allow-scripts npm policy; runtime deps (cn, class-variance-authority, tw-animate-css, @base-ui/react, lucide-react, sonner, next-themes) were installed with plain npm instead. `npm run build -w apps/web` and `npm run check-types -w apps/web` both exit 0. Commit: feat(web) c824e4d. Note: this CLI generation imports `cn` from the `cn` npm package, so no `lib/utils.ts` shim exists.
-- Dev smoke — `npm run dev -w apps/web` (Next 16.2 Turbopack, port 3000): `GET /design-preview` → 200, `GET /` → 200 (legacy demo intact). Server stopped after check. Commit: feat(web) design-preview (see F1-5 git log).
+- Dev smoke — `npm run dev -w apps/web` (Next 16.2 Turbopack, port 3000): `GET /design-preview` → 200, `GET /` → 200 (legacy demo intact). Server stopped after check. Commit: feat(web) d7b00df.
+- Final battery on the complete Phase 1 tree — `npm i -w apps/web` exit 0, `npm run build -w apps/web` exit 0, `npm run check-types -w apps/web` exit 0, clean working tree. See `git log` below. Commit: docs(tasks) (this document update).
 
 ## Route declaration
 
