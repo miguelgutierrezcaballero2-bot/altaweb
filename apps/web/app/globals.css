@@ -1,6 +1,78 @@
 @import "tailwindcss";
 
 /* ══════════════════════════════════════════════
+   AltaCocina — Warm Gastronomic Design Tokens
+   shadcn/ui-compatible semantic scale (Tailwind CSS v4)
+   Cream surfaces, deep-brown text, terracotta primary,
+   wood/copper secondary, muted-sage accent.
+   ══════════════════════════════════════════════ */
+
+:root {
+  /* Surfaces */
+  --background: #fbf6f0;        /* cream */
+  --foreground: #3d2b1f;        /* deep brown espresso */
+  --card: #fffdf9;              /* near-white card on cream */
+  --card-foreground: #3d2b1f;
+  --popover: #fffdf9;
+  --popover-foreground: #3d2b1f;
+
+  /* Primary — terracotta */
+  --primary: #c2540a;
+  --primary-foreground: #fff8f1;
+
+  /* Secondary — wood / copper */
+  --secondary: #8a5a33;
+  --secondary-foreground: #fdf6ee;
+
+  /* Muted — warm beige */
+  --muted: #f0e6d9;
+  --muted-foreground: #806c55;
+
+  /* Accent — muted sage */
+  --accent: #8b9270;
+  --accent-foreground: #fdf6ee;
+
+  /* Destructive — warm brick red */
+  --destructive: #b23b21;
+  --destructive-foreground: #fff8f1;
+
+  /* Borders, inputs, rings */
+  --border: #e7d8c5;
+  --input: #e7d8c5;
+  --ring: #c2540a;
+
+  /* Radius scale for shadcn primitives */
+  --radius: 0.625rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* ══════════════════════════════════════════════
    LEGACY — LUXE Store Design System (dark tokens)
    Kept ONLY so the current starter demo page keeps
    rendering until Phase 2 removes it. Do not build
