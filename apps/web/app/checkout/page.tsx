@@ -7,18 +7,31 @@
  */
 
 import Link from 'next/link';
+import { headers } from 'next/headers';
 import { ShieldCheckIcon } from 'lucide-react';
 import { userManager } from '@/lib/managers/user-manager';
 import {
   DEMO_PROMO_CODES,
   DEMO_USER_EMAIL,
   ensureCatalogSeeded,
+  syncDemoPromotionsViaApi,
 } from '@/lib/seed/catalog-seed';
 import { CheckoutForm } from '@/components/checkout/checkout-form';
 
-export default function CheckoutPage() {
+export default async function CheckoutPage() {
   // Render workers may boot with empty singleton maps; guarantee the seed.
   ensureCatalogSeeded();
+
+  // The validate/applying routes run in the API module graph (dev renders
+  // boot/pages/api managers as separate instances), so the demo codes are
+  // mirrored there through the promotions HTTP contract before the form
+  // can exercise them.
+  const headersList = await headers();
+  const host = headersList.get('host') ?? 'localhost:3000';
+  const protocol = host.startsWith('localhost') || host.startsWith('127.0.0.1')
+    ? 'http'
+    : 'https';
+  await syncDemoPromotionsViaApi(`${protocol}://${host}`);
 
   const demoUser = userManager.findByEmail(DEMO_USER_EMAIL);
 

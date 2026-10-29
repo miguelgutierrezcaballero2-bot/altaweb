@@ -359,39 +359,65 @@ function seedDemoUser(): { users: number } {
 /**
  * Demo promotions so the checkout promo-code flow has a valid + an
  * invalid/outcome to exercise end to end. Idempotent by code lookup.
+ *
+ * Exported separately because `/checkout` additionally syncs these codes
+ * into the API route module graph via POST /api/promotions: in Next 16
+ * Turbopack dev, API handlers hold their own manager instance, so hashing
+ * the codes only into the page/boot graphs leaves the validate route blind.
  */
+export const DEMO_PROMOTION_INPUTS: CreatePromotionInput[] = [
+  {
+    code: 'BIENVENIDA10',
+    discountType: 'percentage',
+    discountValue: 10,
+    minPurchase: 100000,
+    maxUses: 100,
+    validFrom: new Date(Date.now() - 3 * 86400000),
+    validUntil: new Date(Date.now() + 180 * 86400000),
+  },
+  {
+    code: 'GASTRO20K',
+    discountType: 'fixed',
+    discountValue: 20000,
+    minPurchase: 800000,
+    maxUses: 50,
+    validFrom: new Date(Date.now() - 3 * 86400000),
+    validUntil: new Date(Date.now() + 180 * 86400000),
+  },
+];
+
 function seedDemoPromotions(): { promotions: number } {
-  const now = new Date();
-  const threeDaysAgo = new Date(now.getTime() - 3 * 86400000);
-  const sixMonths = new Date(now.getTime() + 180 * 86400000);
-
-  const promoSeeds: CreatePromotionInput[] = [
-    {
-      code: 'BIENVENIDA10',
-      discountType: 'percentage',
-      discountValue: 10,
-      minPurchase: 100000,
-      maxUses: 100,
-      validFrom: threeDaysAgo,
-      validUntil: sixMonths,
-    },
-    {
-      code: 'GASTRO20K',
-      discountType: 'fixed',
-      discountValue: 20000,
-      minPurchase: 800000,
-      maxUses: 50,
-      validFrom: threeDaysAgo,
-      validUntil: sixMonths,
-    },
-  ];
-
   let created = 0;
-  for (const promo of promoSeeds) {
+  for (const promo of DEMO_PROMOTION_INPUTS) {
     if (promotionManager.findByCode(promo.code)) continue;
     promotionManager.create(promo);
     created++;
   }
   return { promotions: created };
 }
+
+/**
+ * Best-effort sync of the demo promo codes into the API module graph
+ * through the promotions HTTP contract. GET ?code= returning 404 means the
+ * API-side manager has not seen the code yet; POST it then. Idempotent by
+ * the GET check, on top of the manager's per-code idempotency.
+ */
+export async function syncDemoPromotionsViaApi(baseUrl: string): Promise<string[]> {
+  const synced: string[] = [];
+  for (const promo of DEMO_PROMOTION_INPUTS) {
+    const check = await fetch(
+      `${baseUrl}/api/promotions?code=${encodeURIComponent(promo.code)}`,
+      { cache: 'no-store' },
+    );
+    if (check.ok) continue; // already visible to the API routes
+    const create = await fetch(`${baseUrl}/api/promotions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(promo),
+    });
+    if (create.ok) synced.push(promo.code);
+  }
+  return synced;
+}
+
 
