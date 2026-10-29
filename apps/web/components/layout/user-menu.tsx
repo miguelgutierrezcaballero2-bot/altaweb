@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -61,20 +62,22 @@ export function UserMenu({ session }: { session: UserMenuSession | null }) {
         }
       />
       <DropdownMenuContent align="end" className="w-60">
-        <DropdownMenuLabel>
-          <span className="block text-sm font-semibold text-foreground">
-            {session.fullName}
-          </span>
-          <span className="block truncate text-xs font-normal">{session.email}</span>
-        </DropdownMenuLabel>
-        <div className="flex items-center gap-2 px-1.5 py-1">
-          <Badge variant="secondary">{roleLabel}</Badge>
-          {session.role === 'customer' && (
-            <span className="text-[10px] text-muted-foreground">
-              rol vendedor pendiente en el dominio
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>
+            <span className="block text-sm font-semibold text-foreground">
+              {session.fullName}
             </span>
-          )}
-        </div>
+            <span className="block truncate text-xs font-normal">{session.email}</span>
+          </DropdownMenuLabel>
+          <div className="flex items-center gap-2 px-1.5 py-1">
+            <Badge variant="secondary">{roleLabel}</Badge>
+            {session.role === 'customer' && (
+              <span className="text-[10px] text-muted-foreground">
+                rol vendedor pendiente en el dominio
+              </span>
+            )}
+          </div>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => router.push('/orders')}>
           <ReceiptTextIcon />
