@@ -63,10 +63,10 @@ export default function HomePage() {
           asesoramiento y garantía oficial.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <Button size="lg" render={<Link href="/products" />}>
+          <Button size="lg" nativeButton={false} render={<Link href="/products" />}>
             Ver catálogo
           </Button>
-          <Button size="lg" variant="outline" render={<Link href="/design-preview" />}>
+          <Button size="lg" variant="outline" nativeButton={false} render={<Link href="/design-preview" />}>
             Preview del sistema de diseño
           </Button>
         </div>
@@ -90,6 +90,7 @@ export default function HomePage() {
                 variant="link"
                 size="sm"
                 className="px-0"
+                nativeButton={false}
                 render={<Link href="/products" />}
               >
                 Ver catálogo de {vertical.title.toLowerCase()}

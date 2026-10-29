@@ -91,7 +91,7 @@ export function CartDrawer() {
             <p className="text-sm text-muted-foreground">
               Agregá equipos desde el catálogo.
             </p>
-            <Button variant="outline" render={<Link href="/products" />}>
+            <Button variant="outline" nativeButton={false} render={<Link href="/products" />}>
               Ver catálogo
             </Button>
           </div>
@@ -159,6 +159,7 @@ export function CartDrawer() {
                 </span>
               </div>
               <Button
+                nativeButton={false}
                 render={<Link href="/products" />}
                 onClick={closeCart}
               >
