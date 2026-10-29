@@ -13,6 +13,11 @@ import {
 } from '@/lib/seed/catalog-seed';
 import { getOwnOriginUrl } from '@/lib/auth/session';
 import { LoginForm } from '@/components/auth/login-form';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Iniciar sesión',
+};
 
 interface LoginPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;

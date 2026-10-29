@@ -13,6 +13,13 @@ import {
 import { productManager } from '@/lib/managers/product-manager';
 import { ensureCatalogSeeded } from '@/lib/seed/catalog-seed';
 import { ProductCard } from '@/components/catalog/product-card';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Catálogo',
+  description:
+    'Equipamiento gastronómico B2B: freidoras, hornos, molinos y refrigeración para tu negocio.',
+};
 
 interface ProductsPageProps {
   searchParams: Promise<{

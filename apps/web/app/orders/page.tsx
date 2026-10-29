@@ -15,6 +15,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { requireVerifiedSession } from '@/lib/auth/session';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Pedidos',
+};
 
 /** HTTP-serialized Order as returned by the orders API. */
 interface OrderRow {

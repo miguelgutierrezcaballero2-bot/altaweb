@@ -14,6 +14,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 import { ArrowLeftIcon, MapPinIcon, PackageIcon, ReceiptTextIcon, TruckIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -63,6 +64,10 @@ interface ShippingView {
   estimatedDelivery: string;
   status: string;
 }
+
+export const metadata: Metadata = {
+  title: 'Pedido',
+};
 
 /** es-AR labels for the OrderStatus enum values. */
 const STATUS_LABELS: Record<string, string> = {

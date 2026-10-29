@@ -15,7 +15,10 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "AltaCocina — Equipamiento gastronómico B2B",
+  title: {
+    default: "AltaCocina — Equipamiento gastronómico B2B",
+    template: "%s · AltaCocina",
+  },
   description:
     "Equipamiento para pollerías, cafeterías y pizzerías: freidoras, hornos, café y refrigeración comercial.",
 };
@@ -26,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es-ar">
+    <html lang="es-ar" data-scroll-behavior="smooth">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <div className="flex min-h-screen flex-col">
           <Header />
