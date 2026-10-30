@@ -6,10 +6,12 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeftIcon, PackageCheckIcon, StarIcon } from 'lucide-react';
+import { PackageCheckIcon, StarIcon } from 'lucide-react';
 import { categoryManager } from '@/lib/managers/category-manager';
 import { productManager } from '@/lib/managers/product-manager';
 import { AddToCartButton } from '@/components/catalog/add-to-cart-button';
+import { ProductBreadcrumb } from '@/components/catalog/product-breadcrumb';
+import { RelatedProducts } from '@/components/catalog/related-products';
 import { Badge } from '@/components/ui/badge';
 import {
   Card,
@@ -39,25 +41,36 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
       ? Math.round((1 - product.price / product.compareAtPrice) * 100)
       : null;
 
+  // Related row data: same rubro, active, excluding self, deterministic
+  // top-ranked by rating desc then price asc then id, capped at 4.
+  const related = category
+    ? productManager
+        .findByCategory(category.id)
+        .filter((item) => item.isActive && item.id !== product.id)
+        .toSorted(
+          (a, b) =>
+            b.rating - a.rating || a.price - b.price || a.id.localeCompare(b.id),
+        )
+        .slice(0, 4)
+    : [];
+
   return (
     <main className="mx-auto max-w-7xl px-4 py-10">
-      {category && (
-        <Link
-          href={`/products?category=${category.slug}`}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeftIcon className="size-4" />
-          Volver a {category.name}
-        </Link>
-      )}
+      <ProductBreadcrumb
+        productName={product.name}
+        category={
+          category ? { name: category.name, slug: category.slug } : null
+        }
+      />
 
       <div className="mt-6 grid gap-8 lg:grid-cols-2">
-        <div className="relative aspect-square overflow-hidden rounded-xl border border-border bg-muted">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-border bg-muted lg:aspect-square">
           {product.images[0] && (
             <Image
               src={product.images[0]}
               alt={product.name}
               fill
+              priority
               sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover"
             />
@@ -75,6 +88,10 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
               <Badge variant="outline" className="gap-1">
                 <StarIcon className="size-3 fill-current" />
                 {new Intl.NumberFormat('es-AR', { minimumFractionDigits: 1 }).format(product.rating)}
+              </Badge>
+              {/* Real availability, straight from the stock contract. */}
+              <Badge variant={product.stock > 0 ? 'outline' : 'destructive'}>
+                {product.stock > 0 ? 'En stock' : 'Agotado'}
               </Badge>
             </div>
 
@@ -147,6 +164,10 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
           </CardContent>
         </Card>
       </div>
+
+      {/* Specs/attributes: the Product contract carries none — an honest
+          specs table would need a domain extension (recorded follow-up). */}
+      <RelatedProducts products={related} />
     </main>
   );
 }
