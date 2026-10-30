@@ -79,7 +79,7 @@ export default function HomePage() {
                   Los equipos mejor valorados por nuestros clientes B2B.
                 </p>
               </div>
-              <Button variant="outline" nativeButton={false} render={<a href="#cotizacion" />}>
+              <Button variant="outline" nativeButton={false} render={<Link href="/quote" />}>
                 Pedir cotización
               </Button>
             </div>

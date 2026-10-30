@@ -1,11 +1,11 @@
 /**
- * Quote teaser (Fase 7) — honest B2B request-a-quote section.
- * The web quote form is Phase 9 work, so the CTA routes to the real,
- * existing channel (mailto ventas@altacocina.com); no dead /quote route.
- * `#cotizacion` is an in-page anchor target for future header CTAs.
+ * Quote teaser (Fase 7, CTA updated Fase 9) — honest B2B request-a-quote
+ * section. With the real quote surface shipped (Fase 9), the CTA routes to
+ * /quote and the mailto lives as a contact hint, not a fake submit.
  */
 
-import { ClockIcon, MailIcon } from 'lucide-react';
+import Link from 'next/link';
+import { ClockIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -30,21 +30,20 @@ export function QuoteTeaser() {
               Contanos qué estás montando y te respondemos en el día.
             </p>
             <p className="text-xs text-muted-foreground">
-              El formulario de cotización web está en preparación (fase 9);
-              mientras tanto te atendemos por correo.
+              Formulario web disponible: generás la solicitud en el momento
+              y la resolvemos por atención comercial.
             </p>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col items-start gap-2">
             <Button
               nativeButton={false}
-              render={<a href={`mailto:${QUOTE_EMAIL}`} />}
+              render={<Link href="/quote" />}
             >
-              <MailIcon data-icon="inline-start" />
-              Escribinos: {QUOTE_EMAIL}
+              Solicitar cotización
             </Button>
             <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <ClockIcon className="size-3.5 text-primary" />
-              Atención comercial: Lun a Vie, 9 a 18 h
+              Atención comercial: Lun a Vie, 9 a 18 h · {QUOTE_EMAIL}
             </span>
           </div>
         </CardContent>
