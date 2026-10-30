@@ -6,6 +6,7 @@
  * All reads run against the real contracts after the render-graph seed.
  */
 
+import Link from 'next/link';
 import {
   ClockIcon,
   ShieldCheckIcon,
