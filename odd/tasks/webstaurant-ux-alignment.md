@@ -66,9 +66,9 @@ Domain layer (`lib/managers/**`, `lib/types/**`, `app/api/**`) is untouched. Fea
 - [x] F8-3 — E2E additions (facet/sort determinism); ticks + evidence.
 
 ### Phase 9
-- [ ] F9-1 — Quote-request surface (honest demo behavior).
-- [ ] F9-2 — Polish pass (sticky add-to-cart, per-unit semantics if real).
-- [ ] F9-3 — Final gates + evidence ticks.
+- [x] F9-1 — Quote-request surface (honest demo behavior).
+- [x] F9-2 — Polish pass (sticky add-to-cart, per-unit semantics if real).
+- [x] F9-3 — Final gates + evidence ticks.
 
 ## Route declaration
 
@@ -177,3 +177,45 @@ Fixed UI bands over the real seeded range (labeled "franjas aprox."): hasta $500
 - No fake server-side semantics: sorts/filters run on the manager reads in the RSC page from real URL params; the API-route gap is recorded, not papered over.
 - Availability facet/backed by the real `stock` field; no invented "envío en 24h"-style copy.
 - Price bands are UI grouping over real prices with the "franjas aprox." honesty hint; no per-unit-of-sale pricing invented (does not exist in the contract).
+
+## F9-1..F9-3 verification evidence (observed results, Fase 9 — FINAL)
+
+Commits in order: `2fc6808` (quote surface) → `4e318b1` (sticky bar + quote CTA) → `b3adc39` (missing Link import fix) → `6c14c5d` (quote E2E) → this doc.
+
+### Quote surface (F9-1)
+
+- New route `/quote` (English identifier, full es-ar UI): RSC page reads real rubro options from the category contract, NO auth gate (browsing stays open — quotes are not a gated contract), contact fields pre-filled only when a session exists (`getSessionClaims()`), and honest deep-link prefill: `?product=<name>` fills the items textarea (target of the PDP quote CTA), `?category=<slug>` preselects the rubro.
+- Client form `components/quote/quote-request-form.tsx` (rhf + zod, established `z.email()`/`onBlur` patterns, fields ids `#quoteEmpresa #quoteName #quoteEmail #quoteCategory #quoteItems #quoteNotes`, native `<select>` matching the established SortForm pattern).
+- **The honesty centerpiece**: there is NO quote backend, so submit NEVER calls any API. It composes the request text client-side (empresa, rubro resolved from real category names or `Varios rubros`/`Sin especificar`), shows it back in a "Solicitud generada" card, offers copy-to-clipboard (`Copiar solicitud` → `Copiado` state, try/catch for denied permission) and a pre-filled `mailto:ventas@altacocina.com`, plus a visible notice: the site stores/transmits nothing, the real backend is a recorded domain follow-up.
+- Home CTAs updated honestly: the phase-7 "form in preparation (fase 9)" note replaced with the real form; the primary mailto button became `Solicitar cotización` → `/quote` (mailto demoted to a text hint in the hours chip); the Destacados `Pedir cotización` button now links `/quote` instead of the temporary `#cotización` anchor (anchor kept for deep links, no dead routes).
+
+### Polish (F9-2)
+
+- PDP sticky add-to-cart bar, mobile-first (`components/catalog/sticky-add-to-cart.tsx`, client, `lg:hidden`): product name + `formatPrice` price with the literal `por unidad` qualifier + the SAME `AddToCartButton` island the panel uses (shared cart store, drawer auto-opens — no add logic duplicated), live units-in-cart count via a `useCartStore` selector, renders `null` when the server stock snapshot is sold out; `role="complementary"` + aria-label for a11y.
+- PDP secondary CTA `Pedir cotización por este equipo` → `/quote?product=<name>`.
+- Per-unit-of-sale / tiered pricing: NOT in the Product contract — skipped, noted. Specs table: NOT rendered (no specs data — same F8 follow-up stands).
+
+### Gates + E2E (observed)
+
+- `npm run e2e -w apps/web`: **20 passed (1.0m)** — 12 prior + 8 new (6 quote-surface + 2 mobile sticky; desktop-hidden assert runs in the default viewport). New spec file-level `test.use({ permissions: ['clipboard-read','clipboard-write'] })` — NO `playwright.config.ts` change needed (report satisfied: not required).
+- Zero-POST honesty enforced as an E2E assertion: `page.on('request')` collector must show zero POSTs to `/api/**` after submit; the demo notice text is asserted visible.
+- **Honest red-run record**: first E2E attempt failed at `webServer` build — `app/page.tsx` reached F9-1 without a `Link` import. Root cause of the near-miss: the gate pattern in use (`cmd /c '... & echo %ERRORLEVEL%'`) expands `%ERRORLEVEL%` at parse time, echoing a stale 0 — so the F9-1 gate report was unreliable. Gates switched to `$LASTEXITCODE` capture; the fix commit (`b3adc39`) declares this, and all gates re-ran genuinely green after it.
+- Final clean gates AFTER all E2E (exit codes captured with `$LASTEXITCODE`): `npm run build -w apps/web` exit 0; `npm run check-types -w apps/web` exit 0.
+- Dev smoke (port 3001, ownership-killed after): `/quote` renders rubro options + honesty notice + contact form; `?product=` prefill present; home renders 2 `/quote` hrefs (primary CTA + Destacados card CTA); espresso PDP renders sticky bar (`lg:hidden` class, `por unidad`), quote CTA (href `/quote?product=…` with the espresso name), breadcrumb; anonymous `/checkout` still streams the login redirect; dev log shows GETs only. Client-submit network behavior is proven by the E2E zero-POST assertion (curl cannot click a client form).
+- Zombies 0 (ownership filter); ports 3000/3001/3100 free at handback; tree clean.
+
+### SERIES COMPLETION (F7–F9)
+
+Shipped across the series UX alignment:
+- **Fase 7**: three-row header (search + account/cart), category mega-menu from the real contract (desktop hover panels; mobile Sheet accordions), merchandising home (CampaignStrip with the REAL active promos BIENVENIDA10/GASTRO20K only, CategoryTiles, Destacados, quote teaser), money-flow locator hardening.
+- **Fase 8**: faceted PLP (URL grammar `?category&search&min&max&stock&sort`, facet sidebar with honest cross-facet counts, chips as real Links, GET sort form, styled empty state), PDP depth (breadcrumb, related row cap 4, real stock badge, larger priority image).
+- **Fase 9**: quote-request surface with the honest no-backend demo behavior (compose + copy + mailto + notice), PDP sticky add-to-cart + quote CTA, final gates.
+
+Recorded follow-ups for the domain owner (not UI work):
+1. Real quote backend (quotes API + storage; the `/quote` demo says exactly this).
+2. Subcategory/parent-child category taxonomy (mega-menu + facets would consume it).
+3. `/api/products` sort/price params (PLP currently applies them server-side at render).
+4. Product specs/attributes model (+ specs table on PDP).
+5. Per-unit-of-sale / tiered pricing semantics (not in the product contract).
+6. Search beyond product name (name-only today).
+7. `.gitignore` heavier coverage for playwright artifacts (partially done via `1058440`).
