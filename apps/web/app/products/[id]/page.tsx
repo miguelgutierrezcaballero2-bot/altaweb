@@ -10,9 +10,11 @@ import { PackageCheckIcon, StarIcon } from 'lucide-react';
 import { categoryManager } from '@/lib/managers/category-manager';
 import { productManager } from '@/lib/managers/product-manager';
 import { AddToCartButton } from '@/components/catalog/add-to-cart-button';
+import { StickyAddToCart } from '@/components/catalog/sticky-add-to-cart';
 import { ProductBreadcrumb } from '@/components/catalog/product-breadcrumb';
 import { RelatedProducts } from '@/components/catalog/related-products';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -144,7 +146,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
               </p>
             </div>
 
-            <div className="pt-2">
+            <div className="pt-2 space-y-2">
               <AddToCartButton
                 product={{
                   productId: product.id,
@@ -155,6 +157,18 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                 stock={product.stock}
                 className="w-full"
               />
+              <Button
+                variant="outline"
+                className="w-full"
+                nativeButton={false}
+                render={
+                  <Link
+                    href={`/quote?product=${encodeURIComponent(product.name)}`}
+                  />
+                }
+              >
+                Pedir cotización por este equipo
+              </Button>
             </div>
 
             <p className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -167,6 +181,16 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
 
       {/* Specs/attributes: the Product contract carries none — an honest
           specs table would need a domain extension (recorded follow-up). */}
+      {/* Mobile-first sticky bar: same shared cart CTA, no duplicated logic. */}
+      <StickyAddToCart
+        product={{
+          productId: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.images[0] ?? null,
+        }}
+        stock={product.stock}
+      />
       <RelatedProducts products={related} />
     </main>
   );
