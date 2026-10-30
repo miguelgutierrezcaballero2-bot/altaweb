@@ -271,8 +271,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       href: `/products${buildQuery({ ...currentParams, search: undefined })}`,
     });
   }
-  const activeBand = PRICE_BANDS.find(
-    (band) => isBandActive(band, minAmount, maxAmount) && minAmount !== undefined && maxAmount !== undefined,
+  const activeBand = PRICE_BANDS.find((band) =>
+    isBandActive(band, minAmount, maxAmount),
   );
   if (activeBand) {
     chips.push({
