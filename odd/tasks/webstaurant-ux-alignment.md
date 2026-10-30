@@ -61,9 +61,9 @@ Domain layer (`lib/managers/**`, `lib/types/**`, `app/api/**`) is untouched. Fea
 - [x] F7-5 — E2E suite green + home smoke test; ticks + evidence.
 
 ### Phase 8
-- [ ] F8-1 — PLP facets/sort/chips contract use + implementation.
-- [ ] F8-2 — PDP related + breadcrumb + layout depth.
-- [ ] F8-3 — E2E additions (facet/sort determinism); ticks + evidence.
+- [x] F8-1 — PLP facets/sort/chips contract use + implementation.
+- [x] F8-2 — PDP related + breadcrumb + layout depth.
+- [x] F8-3 — E2E additions (facet/sort determinism); ticks + evidence.
 
 ### Phase 9
 - [ ] F9-1 — Quote-request surface (honest demo behavior).
@@ -134,3 +134,46 @@ Port note (honest): dev-on-3000 hit transient `EADDRINUSE` (Twice) while `Get-Ne
 Domain honesty audit (F7): ratings/brands/specs/subcategories/tiered pricing — none invented; the mega-menu shows real descriptions + real products (cap 6, top-rated, isActive-filtered) instead of fake subcategory trees; campaign copy derives strictly from `discountType`/`minPurchase`; category tiles map slugs to icons because the contract carries no image data (fallback icon for future slugs).
 
 Follow-ups (recorded, not phase-7 scope): real subcategory taxonomy is a domain extension (F8/9); web quote form is fase 9 by design; `.gitignore` for `test-results/` pending (phase-6 recorded follow-up).
+
+## F8-1..F8-3 verification evidence (observed results, Fase 8)
+
+Commits in order: `678ec6f` (faceted PLP) → `8537885` (PDP depth) → `d4f0664` (price-band chip fix) → `d83a95f` (facets E2E) → this doc.
+
+### Contract re-verification (F8-1 discovery)
+
+- `Product { price, compareAtPrice, images, stock, rating, createdAt, updatedAt, isActive, sku }` — so **availability facet is contract-supported** (`stock`) and **sorts are real contract fields**: `price` (asc/desc), `rating`, `novedad` (`createdAt`, tie-break `sku` for the near-identical seed timestamps). Default `relevancia` preserves the stable seed listing order (`toSorted` is stable).
+- `productManager` surface: `findAll`, `findByCategory`, `searchByName` (name-only), `getFeatured` — no price/sort helpers; the page applies URL-driven filters/sorts **server-side during RSC render** (real URL semantics, not client state). Recorded follow-up: **the `/api/products` GET route exposes only `search`/`categoryId` — a sort/price-params extension would be an API-surface change (out of allowed surface), documented here honestly.**
+- `/api/products` re-checked: GET params `search`, `categoryId` only. `/api` untouched per surface rules.
+
+### URL grammar (documented contract)
+
+```
+/products
+  ?category=<slug>    rubro facet (pollerias | cafeterias | pizzerias)  [existing]
+  ?search=<text>      name-only search                                  [existing]
+  ?min=&max=          price-band bounds in ARS (numeric, >0, validated)
+  ?stock=in           availability facet — stock > 0
+  ?sort=              relevancia (default) | price-asc | price-desc | rating | novedad
+```
+
+Fixed UI bands over the real seeded range (labeled "franjas aprox."): hasta $500.000 (`max=500000`), $500.000 a $1.500.000 (`min=500000&max=1500000`), más de $1.500.000 (`min=1500000`). Facet counts aggregate over the set filtered by every OTHER facet (standard faceting semantics, honest counts). Chips are real `<Link>`s dropping exactly one param; clear-all → `/products`. Sort control is a native GET form carrying over the remaining filters.
+
+### PDP depth (F8-2)
+
+- Breadcrumb `Inicio / Rubro / Equipo` (real links, replaces the back link).
+- Related row: same rubro, `isActive`, excluding self, sorted rating desc → price asc → id, cap 4, `ProductCard` reuse.
+- Info panel adds a real availability badge (`En stock` / `Agotado` straight from `stock`); main image is larger (aspect 4/3 mobile, square desktop) with `priority` loading.
+- **Specs/attributes table NOT rendered — the Product contract carries none. Honest follow-up: a specs model is a domain extension for a future phase.** No fake per-unit semantics; copy unchanged.
+
+### Gates + E2E (observed)
+
+- `npm run build -w apps/web`: exit 0. `npm run check-types -w apps/web`: exit 0 (final, after E2E).
+- `npm run e2e -w apps/web`: **12 passed (39.8s)** — 5 prior + 7 new facets/PDP tests. Honest red-run record: first run 10 passed / 2 failed — (1) price-band removal chip never rendered for single-bound bands (page bug: chip condition demanded both min and max defined; fixed in `d4f0664`), (2) empty-state "Limpiar filtros" resolved 2 elements (chips-row clear-all + empty-state CTA; test scoped to `section`). No money-flow locator changed; no config change.
+- Dev smoke (port 3001): facet sidebar/group rendering, band `min=1500000` → chip + band-filtered cards, `sort=price-asc` first card = $89.000 (Palas de horno), `sort=price-desc&category=cafeterias` first card = $4.650.000 espresso with the category carried, PDP breadcrumb + `Tambi`n te puede interesar` (pizzer`as rubro) + `En stock` badge, anonymous `/checkout` still streams the login redirect. Raw-HTML "missing" strings traced to RSC `<!-- -->` text-node separators (dev artifact), not absent content.
+- Ports 3000/3001/3100 free at handback; zombie scan clean (one more stale `next dev --port 3000` tree was caught and killed by the ownership filter at teardown).
+
+### Domain honesty audit (F8)
+
+- No fake server-side semantics: sorts/filters run on the manager reads in the RSC page from real URL params; the API-route gap is recorded, not papered over.
+- Availability facet/backed by the real `stock` field; no invented "envío en 24h"-style copy.
+- Price bands are UI grouping over real prices with the "franjas aprox." honesty hint; no per-unit-of-sale pricing invented (does not exist in the contract).
