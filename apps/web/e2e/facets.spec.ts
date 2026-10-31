@@ -3,8 +3,8 @@ import { test, expect } from '@playwright/test';
 /**
  * Facets + PDP depth E2E (Fase 8) — runs against the PRODUCTION build.
  *
- * Determinism anchors: the seeded catalog is fixed (15 active products;
- * cafeterias has 5). Known extremes: cheapest $89.000 (Palas de horno),
+ * Determinism anchors: the seeded catalog is fixed (28 active products;
+ * cafeterias has 12). Known extremes: cheapest $89.000 (Palas de horno),
  * priciest $4.650.000 (Máquina espresso). All text assertions are scoped
  * (region/main) because the header mega-menu renders page-wide SSR content.
  */
@@ -28,6 +28,17 @@ test('category facet navigates to the real rubro with the count', async ({
   await expect(
     page.getByRole('main').getByText(/equipos en Cafeter\u00edas/),
   ).toBeVisible();
+});
+
+test('catalog shows all seeded products with local equipment photos', async ({
+  page,
+}) => {
+  await page.goto('/products');
+  const cards = grid(page).locator('[data-slot="card"]');
+  await expect(cards).toHaveCount(28);
+  const images = grid(page).locator('img');
+  await expect(images).toHaveCount(28);
+  await expect(images.first()).toHaveAttribute('src', /url=%2Fproducts%2F/);
 });
 
 test('price band facet applies min bounds and spawns a removal chip', async ({
@@ -101,8 +112,8 @@ test('PDP shows breadcrumb and a related row from the same rubro', async ({
   page,
 }) => {
   await page.goto('/products?category=cafeterias');
-  // CAF-MQE-001 is the 5-product rubro's priciest card; its related row
-  // holds exactly the other 4 active cafeterias products.
+  // CAF-MQE-001 remains the rubro's priciest card; the related row is capped
+  // at four products even after the category grows.
   const card = grid(page)
     .locator('[data-slot="card"]')
     .filter({ hasText: '4.650.000' })
@@ -126,7 +137,7 @@ test('PDP shows breadcrumb and a related row from the same rubro', async ({
   await expect(related).toBeVisible();
   await expect(
     related.locator('[data-slot="card"]'),
-  ).toHaveCount(4); // 5 active cafeterias products minus self
+  ).toHaveCount(4);
   // Related row must exclude the self product.
   await expect(related).not.toContainText('4.650.000');
 });
