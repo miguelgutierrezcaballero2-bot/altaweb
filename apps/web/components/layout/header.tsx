@@ -8,9 +8,9 @@
  * Seed is guaranteed before manager reads (render-worker graphs).
  */
 
+import Image from "next/image";
 import Link from "next/link";
 import {
-  ChefHatIcon,
   ReceiptTextIcon,
   SearchIcon,
   TruckIcon,
@@ -94,12 +94,17 @@ export async function Header() {
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:gap-8">
         <Link
           href="/"
-          className="flex shrink-0 items-center gap-2 text-lg font-bold tracking-tight"
+          aria-label="AltaCocina — inicio"
+          className="flex shrink-0 items-center"
         >
-          <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <ChefHatIcon className="size-5" />
-          </span>
-          <span>AltaCocina</span>
+          <Image
+            src="/alta-logo.png"
+            alt="AltaCocina"
+            width={56}
+            height={56}
+            priority
+            className="size-14 object-contain"
+          />
         </Link>
 
         {/* Server-rendered search: native GET form, no client JS. */}

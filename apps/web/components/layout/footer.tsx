@@ -3,8 +3,8 @@
  * Minimal brand + tagline + placeholder columns for Phase 2.
  */
 
+import Image from 'next/image';
 import Link from 'next/link';
-import { ChefHatIcon } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -13,12 +13,16 @@ export function Footer() {
         <div className="space-y-3">
           <Link
             href="/"
-            className="flex items-center gap-2 text-lg font-bold tracking-tight"
+            aria-label="AltaCocina — inicio"
+            className="flex items-center"
           >
-            <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <ChefHatIcon className="size-5" />
-            </span>
-            <span>AltaCocina</span>
+            <Image
+              src="/alta-logo.png"
+              alt="AltaCocina"
+              width={48}
+              height={48}
+              className="size-12 object-contain"
+            />
           </Link>
           <p className="text-sm text-muted-foreground">
             Equipamiento gastronómico B2B para pollerías, cafeterías y
