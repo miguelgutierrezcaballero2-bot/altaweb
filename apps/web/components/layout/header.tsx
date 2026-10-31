@@ -62,7 +62,7 @@ export async function Header() {
         <div className="mx-auto flex h-9 max-w-7xl items-center justify-between gap-3 px-4">
           <p className="hidden min-w-0 items-center gap-1.5 text-xs font-medium sm:flex">
             <TruckIcon className="size-3.5 shrink-0" />
-            Ventas mayoristas B2B · flete e instalación en todo el país
+            Ventas por mayor y envíos a nivel nacional
           </p>
           <nav
             aria-label="Cuenta y pedidos"
