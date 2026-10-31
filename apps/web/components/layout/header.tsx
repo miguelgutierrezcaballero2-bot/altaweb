@@ -130,7 +130,7 @@ export async function Header() {
       </div>
 
       {/* Row 3 — category bar: mega-menu desktop / accordion drawer mobile */}
-      <nav aria-label="Categorías" className="border-t border-border bg-[#F9C900]">
+      <nav aria-label="Categorías" className="border-t border-border bg-[#FFEE32]">
         <CategoryMegamenu categories={megaCategories} />
       </nav>
     </header>
