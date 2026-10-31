@@ -5,8 +5,7 @@
  * Idempotent: if the managers already hold data, seeding is skipped so a
  * server restart (or dev HMR reload) never duplicates rows.
  *
- * Note: placeholder images reuse the demo electronics files shipped in
- * public/products; real gastro imagery is a Phase-6 content task.
+ * Product photos are the local gastronomic equipment images in public/products.
  */
 
 import { categoryManager } from '@/lib/managers/category-manager';
@@ -16,18 +15,24 @@ import { userManager } from '@/lib/managers/user-manager';
 import type { CreateProductInput } from '@/lib/types/product';
 import type { CreatePromotionInput } from '@/lib/types/promotion';
 
-// Demo placeholder images shipped with the starter (stand-ins; see header).
-const PLACEHOLDER_IMAGES = [
-  '/products/backpack.jpg',
-  '/products/headphones.jpg',
-  '/products/hero-banner.jpg',
-  '/products/laptop-stand.jpg',
-  '/products/smartwatch.jpg',
-  '/products/speaker.jpg',
+const PRODUCT_IMAGES = [
+  '/products/Sarten-Hawkins-Grill-con-Tapa-30-cm-Hierro-Fundido-Con-Interior-Antiadherente-DCGP30G.jpg',
+  '/products/Ablandador-de-Carne-Chef-Master-90009.jpg',
+  '/products/Contenedor-Cambro-Isotermico-Mantenedor-de-Bebidas-9.5-Lt.-250LCD-131-1.jpg',
+  '/products/camrack-cambro-cesto-estandar-con-espigas-tamano-completo-PR314-151.jpg',
+  '/products/prensapapa_wico_PR-16.jpg',
+  '/products/Espatula-Flexible-Perforada-Chef-Master-90285-2.jpg',
+  '/products/Organizador-Jinde-Porta-Vasos-y-Tapas-de-6-Compartimentos-JD-86216-3.jpg',
+  '/products/Bowl-Pioli-Multiusos-Neptuno-de-7.5-cm-35AP07.jpg',
+  '/products/Samovar-Sunnex-de-8.5-Lt-con-Tapa-Hidraulica-Electrico-X813087v-1.jpg',
+  '/products/Dispensador-Alcosa-de-Jugo-8-Lt-Cabeza-Plateado-X23688P-1.jpg',
+  '/products/Plato-pioli-tendido-poem-de-30-cm-18ML30.jpg',
+  '/products/Maquina-Imperia-para-Pastas-Modelo-Rame.jpg',
+  '/products/Prensa-Precurada-Tortilla-Pataconera-Victoria-Press-6.5-1.jpg',
 ] as const;
 
 function image(index: number): string {
-  return PLACEHOLDER_IMAGES[index % PLACEHOLDER_IMAGES.length];
+  return PRODUCT_IMAGES[index % PRODUCT_IMAGES.length];
 }
 
 const CATEGORY_SEEDS = [
@@ -242,6 +247,151 @@ const PRODUCT_SEEDS: ProductSeed[] = [
     sku: 'PZX-PAL-001',
     stock: 30,
     rating: 4.2,
+  },
+
+  // ── Productos incorporados desde las imágenes del catálogo ─────
+  {
+    categorySlug: 'pollerias',
+    imageIndex: 1,
+    name: 'Ablandador de carne Chef Master 90009',
+    description:
+      'Ablandador manual Chef Master para preparar cortes de carne de forma uniforme en cocinas profesionales.',
+    price: 120000,
+    sku: 'POL-ABL-001',
+    stock: 18,
+    rating: 5.0,
+  },
+  {
+    categorySlug: 'cafeterias',
+    imageIndex: 7,
+    name: 'Bowl Pioli multiusos Neptuno 7,5 cm',
+    description:
+      'Bowl multiusos Pioli Neptuno para preparación y servicio en cafeterías y cocinas gastronómicas.',
+    price: 95000,
+    sku: 'CAF-BOW-001',
+    stock: 36,
+    rating: 4.6,
+  },
+  {
+    categorySlug: 'cafeterias',
+    imageIndex: 3,
+    name: 'Cesto Cambro Camrack estándar',
+    description:
+      'Cesto Cambro con espigas para organizar vajilla y facilitar el lavado y almacenamiento.',
+    price: 245000,
+    sku: 'CAF-CAM-001',
+    stock: 14,
+    rating: 4.7,
+  },
+  {
+    categorySlug: 'cafeterias',
+    imageIndex: 2,
+    name: 'Contenedor isotérmico Cambro 9,5 L',
+    description:
+      'Contenedor Cambro isotérmico para conservar y transportar bebidas en servicios gastronómicos.',
+    price: 385000,
+    sku: 'CAF-CON-001',
+    stock: 8,
+    rating: 4.8,
+  },
+  {
+    categorySlug: 'cafeterias',
+    imageIndex: 9,
+    name: 'Dispensador Alcosa de jugo 8 L',
+    description:
+      'Dispensador Alcosa de 8 litros para servir jugos y bebidas en barras, cafeterías y eventos.',
+    price: 275000,
+    sku: 'CAF-DIS-001',
+    stock: 11,
+    rating: 4.8,
+  },
+  {
+    categorySlug: 'pizzerias',
+    imageIndex: 5,
+    name: 'Espátula flexible perforada Chef Master',
+    description:
+      'Espátula flexible perforada Chef Master para manipular y servir alimentos en cocinas profesionales.',
+    price: 98000,
+    sku: 'PZX-ESP-001',
+    stock: 28,
+    rating: 4.7,
+  },
+  {
+    categorySlug: 'pizzerias',
+    imageIndex: 11,
+    name: 'Máquina Imperia para pastas modelo Rame',
+    description:
+      'Máquina Imperia modelo Rame para elaborar pastas frescas en cocinas y restaurantes.',
+    price: 495000,
+    sku: 'PZX-IMP-001',
+    stock: 6,
+    rating: 5.0,
+  },
+  {
+    categorySlug: 'cafeterias',
+    imageIndex: 6,
+    name: 'Organizador Jinde para vasos y tapas',
+    description:
+      'Organizador Jinde con seis compartimentos para mantener vasos y tapas accesibles en la barra.',
+    price: 185000,
+    sku: 'CAF-ORG-001',
+    stock: 17,
+    rating: 4.5,
+  },
+  {
+    categorySlug: 'cafeterias',
+    imageIndex: 10,
+    name: 'Plato Pioli Poem tendido 30 cm',
+    description:
+      'Plato tendido Pioli Poem de 30 cm para presentación y servicio gastronómico.',
+    price: 110000,
+    sku: 'CAF-PLA-001',
+    stock: 42,
+    rating: 4.6,
+  },
+  {
+    categorySlug: 'pollerias',
+    imageIndex: 12,
+    name: 'Prensa Victoria para tortillas y patacones 6,5"',
+    description:
+      'Prensa precurada Victoria para preparar tortillas y patacones de manera uniforme.',
+    price: 150000,
+    sku: 'POL-PRE-001',
+    stock: 12,
+    rating: 5.0,
+  },
+  {
+    categorySlug: 'pollerias',
+    imageIndex: 4,
+    name: 'Prensapapa Wico PR-16',
+    description:
+      'Prensapapa Wico PR-16 para preparar purés y guarniciones en cocinas profesionales.',
+    price: 99000,
+    sku: 'POL-PPW-001',
+    stock: 21,
+    rating: 5.0,
+  },
+  {
+    categorySlug: 'cafeterias',
+    imageIndex: 8,
+    name: 'Samovar Sunnex eléctrico 8,5 L',
+    description:
+      'Samovar eléctrico Sunnex de 8,5 litros con tapa hidráulica para mantener bebidas calientes.',
+    price: 420000,
+    sku: 'CAF-SAM-001',
+    stock: 5,
+    rating: 4.9,
+  },
+  {
+    categorySlug: 'pollerias',
+    imageIndex: 0,
+    name: 'Sartén Hawkins Grill con tapa 30 cm',
+    description:
+      'Sartén Hawkins Grill de hierro fundido con tapa e interior antiadherente.',
+    price: 165000,
+    sku: 'POL-SAR-001',
+    stock: 9,
+    rating: 5.0,
   },
 ];
 
@@ -504,5 +654,4 @@ export async function syncDemoUsersViaApi(baseUrl: string): Promise<string[]> {
   }
   return synced;
 }
-
 
