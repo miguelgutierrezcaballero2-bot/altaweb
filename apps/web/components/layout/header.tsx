@@ -8,23 +8,23 @@
  * Seed is guaranteed before manager reads (render-worker graphs).
  */
 
-import Link from 'next/link';
+import Link from "next/link";
 import {
   ChefHatIcon,
   ReceiptTextIcon,
   SearchIcon,
   TruckIcon,
-} from 'lucide-react';
-import { categoryManager } from '@/lib/managers/category-manager';
-import { productManager } from '@/lib/managers/product-manager';
-import { ensureCatalogSeeded } from '@/lib/seed/catalog-seed';
-import { CartButton } from '@/components/layout/cart-drawer';
-import { UserMenu } from '@/components/layout/user-menu';
+} from "lucide-react";
+import { categoryManager } from "@/lib/managers/category-manager";
+import { productManager } from "@/lib/managers/product-manager";
+import { ensureCatalogSeeded } from "@/lib/seed/catalog-seed";
+import { CartButton } from "@/components/layout/cart-drawer";
+import { UserMenu } from "@/components/layout/user-menu";
 import {
   CategoryMegamenu,
   type MegaCategory,
-} from '@/components/layout/category-megamenu';
-import { getSessionClaims } from '@/lib/auth/session';
+} from "@/components/layout/category-megamenu";
+import { getSessionClaims } from "@/lib/auth/session";
 
 /**
  * Mega-menu data from the REAL contract: category fields as-is, and the
@@ -102,17 +102,29 @@ export async function Header() {
         </Link>
 
         {/* Server-rendered search: native GET form, no client JS. */}
-        <form action="/products" method="get" className="flex min-w-0 flex-1 items-center gap-2">
-          <div className="relative w-full">
+        <form
+          action="/products"
+          method="get"
+          className="flex h-11 min-w-0 flex-1 items-center overflow-hidden rounded-lg border border-input bg-card transition-shadow focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/20"
+        >
+          <div className="relative min-w-0 flex-1">
             <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="search"
               name="search"
               placeholder="¿Qué está buscando? Equipos, freidoras, hornos…"
               aria-label="Buscar productos"
-              className="h-10 w-full rounded-lg border border-input bg-card pl-9 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+              className="h-10 w-full bg-transparent pl-9 pr-3 text-sm outline-none placeholder:text-muted-foreground"
             />
           </div>
+          <button
+            type="submit"
+            aria-label="Buscar"
+            className="flex h-full shrink-0 items-center gap-2 bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-white"
+          >
+            <SearchIcon className="size-4" />
+            <span className="hidden sm:inline">Buscar</span>
+          </button>
         </form>
       </div>
 

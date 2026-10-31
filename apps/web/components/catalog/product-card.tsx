@@ -4,23 +4,19 @@
  * client island inside is the add-to-cart CTA.
  */
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { StarIcon } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-} from '@/components/ui/card';
-import { AddToCartButton } from '@/components/catalog/add-to-cart-button';
-import type { Product } from '@/lib/types/product';
+import Image from "next/image";
+import Link from "next/link";
+import { StarIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { AddToCartButton } from "@/components/catalog/add-to-cart-button";
+import type { Product } from "@/lib/types/product";
 
 /** es-AR ARS price formatting shared by card and detail (server-only usage). */
 export function formatPrice(value: number): string {
-  return new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: 'ARS',
+  return new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
     maximumFractionDigits: 0,
   }).format(value);
 }
@@ -32,8 +28,8 @@ export function ProductCard({ product }: { product: Product }) {
       : null;
 
   return (
-    <Card className="flex h-full flex-col overflow-hidden p-0">
-      <div className="relative aspect-[4/3] bg-muted">
+    <Card className="group flex h-full flex-col overflow-hidden border-border/80 p-0 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg">
+      <div className="relative aspect-[4/3] bg-card">
         {product.images[0] && (
           <Image
             src={product.images[0]}
@@ -41,7 +37,7 @@ export function ProductCard({ product }: { product: Product }) {
             fill
             loading="eager"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            className="object-cover"
+            className="object-contain p-4 transition-transform duration-300 group-hover:scale-105 sm:p-5"
           />
         )}
         {discountPct && (
@@ -52,7 +48,9 @@ export function ProductCard({ product }: { product: Product }) {
         <span className="absolute top-2 right-2">
           <Badge variant="secondary" className="gap-1">
             <StarIcon className="fill-current text-current size-3" />
-            {new Intl.NumberFormat('es-AR', { minimumFractionDigits: 1 }).format(product.rating)}
+            {new Intl.NumberFormat("es-AR", {
+              minimumFractionDigits: 1,
+            }).format(product.rating)}
           </Badge>
         </span>
       </div>
@@ -60,7 +58,7 @@ export function ProductCard({ product }: { product: Product }) {
       <CardContent className="flex-1 space-y-1.5 pt-4">
         <Link
           href={`/products/${product.id}`}
-          className="text-sm font-semibold leading-snug hover:text-primary"
+          className="line-clamp-2 min-h-10 text-sm font-semibold leading-snug hover:text-primary"
         >
           {product.name}
         </Link>
@@ -75,9 +73,7 @@ export function ProductCard({ product }: { product: Product }) {
           )}
         </div>
         <p className="text-xs text-muted-foreground">SKU {product.sku}</p>
-        {product.stock === 0 && (
-          <Badge variant="destructive">Agotado</Badge>
-        )}
+        {product.stock === 0 && <Badge variant="destructive">Agotado</Badge>}
         {product.stock > 0 && product.stock <= 3 && (
           <Badge variant="outline">Últimas {product.stock} unidades</Badge>
         )}
