@@ -9,7 +9,7 @@
 
 :root {
   /* Surfaces */
-  --background: #fbf6f0;        /* cream */
+  --background: #f7f7f7;        /* neutral page surface */
   --foreground: #3d2b1f;        /* deep brown espresso */
   --card: #fffdf9;              /* near-white card on cream */
   --card-foreground: #3d2b1f;
