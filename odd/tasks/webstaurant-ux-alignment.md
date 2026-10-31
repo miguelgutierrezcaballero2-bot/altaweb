@@ -219,3 +219,11 @@ Recorded follow-ups for the domain owner (not UI work):
 5. Per-unit-of-sale / tiered pricing semantics (not in the product contract).
 6. Search beyond product name (name-only today).
 7. `.gitignore` heavier coverage for playwright artifacts (partially done via `1058440`).
+
+## Content slice: real gastro photos + catalog growth (post-series)
+
+- **Images**: the 13 product photos dropped in the `img/` source folder are now served from `apps/web/public/products/` and the seed references them (`PRODUCT_IMAGES`), replacing the starter electronics placeholders. The raw `img/` drop folder is ignored (served copies are canonical, avoids 1.5 MB duplication); remove it from `.gitignore` if the raw sources must live in the repo.
+- **Catalog**: 15 ? **28 products** (13 new seeds driven by those photos: smallwares/tabletop for the three rubros, real SKUs/prices/stock/ratings).
+- **Storefront integration** (parallel polish found in the working tree, reviewed and kept): merchandising hero with featured product, photo-backed category tiles with icon fallback, card hover/contain treatment, dedicated search submit button, base CSS moved into `@layer base`.
+- **Token regression fixed**: the working tree had `--secondary` as a yellow `hsla(56,90%,49%)` and `--muted-foreground` as `hwb(51 75% 23%)` — both restored to the warm palette values (`#8a5a33` wood, `#806c55` warm beige) per the token comments.
+- **Verification**: `check-types` exit 0, `build` exit 0, `npm run e2e` **21/21 passed** (added catalog assertion: 28 cards, 28 local `/products/*` images), browser review of `/` and `/products` (28 equipos; facet counts 10/12/6).
