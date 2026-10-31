@@ -31,7 +31,13 @@ interface UserMenuSession {
   role: SessionRole;
 }
 
-export function UserMenu({ session }: { session: UserMenuSession | null }) {
+export function UserMenu({
+  session,
+  className,
+}: {
+  session: UserMenuSession | null;
+  className?: string;
+}) {
   const router = useRouter();
   const [signingOut, setSigningOut] = useState(false);
 
@@ -40,6 +46,7 @@ export function UserMenu({ session }: { session: UserMenuSession | null }) {
       <Button
         variant="outline"
         size="sm"
+        className={className}
         nativeButton={false}
         render={<Link href="/login" />}
       >
@@ -55,7 +62,12 @@ export function UserMenu({ session }: { session: UserMenuSession | null }) {
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button variant="outline" size="sm" disabled={signingOut}>
+          <Button
+            variant="outline"
+            size="sm"
+            className={className}
+            disabled={signingOut}
+          >
             <UserIcon data-icon="inline-start" />
             <span className="max-w-28 truncate">{session.fullName}</span>
           </Button>

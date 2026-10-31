@@ -40,7 +40,7 @@ function formatPrice(value: number): string {
 }
 
 /** Header trigger: cart icon with a unit-count badge; opens the drawer. */
-export function CartButton() {
+export function CartButton({ className }: { className?: string }) {
   const openCart = useCartStore((state) => state.openCart);
   const totalUnits = useCartStore(selectTotalUnits);
 
@@ -50,7 +50,7 @@ export function CartButton() {
       size="icon"
       onClick={openCart}
       aria-label={`Abrir carrito, ${totalUnits} unidades`}
-      className="relative"
+      className={`relative${className ? ` ${className}` : ''}`}
     >
       <ShoppingCartIcon />
       {totalUnits > 0 && (

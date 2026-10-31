@@ -56,9 +56,9 @@ export async function Header() {
   const session = await getSessionClaims();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background">
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-[#06060A] text-[#fffaf4]">
       {/* Row 1 — utility */}
-      <div className="bg-secondary text-secondary-foreground">
+      <div className="border-b border-white/10 text-white/85">
         <div className="mx-auto flex h-9 max-w-7xl items-center justify-between gap-3 px-4">
           <p className="hidden min-w-0 items-center gap-1.5 text-xs font-medium sm:flex">
             <TruckIcon className="size-3.5 shrink-0" />
@@ -76,6 +76,7 @@ export async function Header() {
               Mis pedidos
             </Link>
             <UserMenu
+              className="border-white/25 bg-transparent text-white hover:bg-white/10 hover:text-white"
               session={
                 session && {
                   fullName: session.fullName,
@@ -84,7 +85,7 @@ export async function Header() {
                 }
               }
             />
-            <CartButton />
+            <CartButton className="border-white/25 bg-transparent text-white hover:bg-white/10 hover:text-white" />
           </nav>
         </div>
       </div>
@@ -129,7 +130,7 @@ export async function Header() {
       </div>
 
       {/* Row 3 — category bar: mega-menu desktop / accordion drawer mobile */}
-      <nav aria-label="Categorías" className="border-t border-border">
+      <nav aria-label="Categorías" className="border-t border-white/10">
         <CategoryMegamenu categories={megaCategories} />
       </nav>
     </header>

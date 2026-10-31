@@ -35,7 +35,7 @@ export interface MegaCategory {
 }
 
 const barLinkClass =
-  'flex h-10 items-center gap-1 border-b-2 border-transparent px-2.5 text-sm font-medium text-foreground/80 transition-none hover:border-primary hover:text-foreground focus-visible:border-primary focus-visible:text-foreground focus-visible:outline-none focus-visible:ring-1';
+  'flex h-10 items-center gap-1 border-b-2 border-transparent px-2.5 text-sm font-medium text-white/80 transition-none hover:border-primary hover:text-white focus-visible:border-primary focus-visible:text-white focus-visible:outline-none focus-visible:ring-1';
 
 /** Desktop hover panel content for one category (real contract data). */
 function MegaPanel({ category }: { category: MegaCategory }) {
@@ -127,7 +127,11 @@ export function CategoryMegamenu({ categories }: { categories: MegaCategory[] })
         <Sheet>
           <SheetTrigger
             render={
-              <Button variant="ghost" size="sm" className="lg:hidden" />
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white/90 hover:bg-white/10 hover:text-white lg:hidden"
+              />
             }
           >
             <ListFilterIcon data-icon="inline-start" />
