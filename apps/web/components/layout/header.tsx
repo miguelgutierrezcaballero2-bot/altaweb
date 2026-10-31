@@ -126,7 +126,7 @@ export async function Header() {
           <button
             type="submit"
             aria-label="Buscar"
-            className="flex h-full shrink-0 items-center gap-2 bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-white"
+            className="flex h-full shrink-0 items-center gap-2 bg-[#FFEE32] px-4 text-sm font-semibold text-foreground transition-colors hover:bg-[#f2df1f] focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-foreground"
           >
             <SearchIcon className="size-4" />
             <span className="hidden sm:inline">Buscar</span>
