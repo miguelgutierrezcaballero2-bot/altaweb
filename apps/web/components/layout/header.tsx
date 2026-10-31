@@ -56,9 +56,9 @@ export async function Header() {
   const session = await getSessionClaims();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-[#06060A] text-[#fffaf4]">
-      {/* Row 1 — utility */}
-      <div className="border-b border-white/10 text-white/85">
+    <header className="sticky top-0 z-40 border-b border-border bg-background">
+      {/* Row 1 — utility: the only band carrying the dark brand color */}
+      <div className="bg-[#06060A] text-white/85">
         <div className="mx-auto flex h-9 max-w-7xl items-center justify-between gap-3 px-4">
           <p className="hidden min-w-0 items-center gap-1.5 text-xs font-medium sm:flex">
             <TruckIcon className="size-3.5 shrink-0" />
@@ -130,7 +130,7 @@ export async function Header() {
       </div>
 
       {/* Row 3 — category bar: mega-menu desktop / accordion drawer mobile */}
-      <nav aria-label="Categorías" className="border-t border-white/10">
+      <nav aria-label="Categorías" className="border-t border-border">
         <CategoryMegamenu categories={megaCategories} />
       </nav>
     </header>
